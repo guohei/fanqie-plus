@@ -1,0 +1,9 @@
+description = "Open a new Fanqie long-novel project"
+prompt = """
+Use the fanqie-plus skill from skills/fanqie-plus.
+
+Open a new Fanqie long-novel project from the user's idea. Confirm or infer the five required seed fields, initialize the project structure, and create the opening strategy files. If enough information is missing, ask one concise question before writing files.
+
+User input:
+{{args}}
+"""

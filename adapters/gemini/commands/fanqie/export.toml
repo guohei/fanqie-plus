@@ -1,0 +1,9 @@
+description = "Export final chapters to Fanqie plain text"
+prompt = """
+Use the fanqie-plus skill from skills/fanqie-plus.
+
+Export final chapters to Fanqie-ready plain text. Remove Markdown and metadata, preserve chapter order, and verify exported text contains正文 only.
+
+User input:
+{{args}}
+"""

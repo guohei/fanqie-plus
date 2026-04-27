@@ -1,0 +1,9 @@
+description = "Continue the next Fanqie chapter"
+prompt = """
+Use the fanqie-plus skill from skills/fanqie-plus.
+
+Continue the next chapter. Identify the chapter number, read the minimal context, create a beat sheet, draft the chapter, run gates, and update memory only after the chapter passes.
+
+User input:
+{{args}}
+"""

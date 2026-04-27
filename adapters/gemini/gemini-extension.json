@@ -1,0 +1,6 @@
+{
+  "name": "fanqie-plus",
+  "version": "0.1.0",
+  "description": "Fanqie long-form Chinese web novel skill and commands for Gemini CLI.",
+  "contextFileName": "GEMINI.md"
+}

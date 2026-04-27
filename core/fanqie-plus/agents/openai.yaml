@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fanqie Plus"
+  short_description: "Write and manage long-form Fanqie web novels."
+  default_prompt: "Use Fanqie Plus to open, plan, continue, review, repair, and export a long-form Fanqie novel project."
