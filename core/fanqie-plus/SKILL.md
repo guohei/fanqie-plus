@@ -24,8 +24,8 @@ Use when the user has an idea, trope, genre, title, or only says they want to wr
 
 1. Read `references/open-book.md`.
 2. Confirm or infer the five seed fields: target reader, style, forbidden zones, automation level, and target scale.
-3. Create the project with `scripts/init_novel.py`, or create the same directory structure manually.
-4. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md`.
+3. Create the directory structure under `Project Layout` with your file tools.
+4. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, not generic templates.
 5. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
 
 ### 2. Plan the long book
@@ -42,11 +42,11 @@ Use when creating or rebuilding the roadmap, volume plan, chapter queue, or mill
 Use for "继续写", "写下一章", "今天N章", or any single/batch chapter drafting request.
 
 1. Read `references/chapter-pipeline.md`, `references/story-memory.md`, and `references/quality-gates.md`.
-2. Run or emulate `scripts/next_chapter.py` to identify the next chapter and required context files.
+2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Read the minimal context set listed in `chapter-pipeline.md`.
 3. Create a beat sheet before正文. Confirm the chapter pace tier and the one allowed major quota item.
 4. Draft 2000-4000 Chinese characters per chapter unless the user or project config says otherwise.
 5. Run quality gate checks. Use `scripts/gate_check.py` for mechanical checks, then perform semantic checks yourself.
-6. If passed, update memory with `scripts/update_memory.py` or equivalent manual edits.
+6. If passed, update `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv` with the chapter outcome.
 
 ### 4. Repair a chapter
 
@@ -118,10 +118,9 @@ book/
 
 ## Scripts
 
-- `scripts/init_novel.py`: create the project structure and seed files.
-- `scripts/next_chapter.py`: inspect project state and print the next chapter context checklist.
-- `scripts/gate_check.py`: run mechanical chapter checks and optionally write JSON.
-- `scripts/update_memory.py`: append a chapter summary and update state files.
+- `scripts/gate_check.py`: run mechanical chapter checks (URL/contact/meta contamination, character count, hook signal) and optionally write JSON.
 - `scripts/export_fanqie.py`: convert final chapter Markdown/text into Fanqie-ready `.txt`.
 
-Scripts are helpers, not replacements for judgment. Semantic checks such as emotional pull, hidden pacing acceleration, trope fit, and character voice must be performed by the agent.
+Scripts are reserved for deterministic pattern matching and text transformation. Project setup, chapter discovery, and memory updates are handled directly by the agent with its file tools — see the workflow steps above.
+
+Semantic checks such as emotional pull, hidden pacing acceleration, trope fit, and character voice must be performed by the agent.

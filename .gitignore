@@ -1,6 +1,10 @@
 __pycache__/
 *.py[cod]
 .DS_Store
+.claude/
+corpus/
+
+# Local adapter skill links/copies.
 adapters/codex/skills/
 adapters/gemini/skills/
 adapters/windsurf/.windsurf/skills/

@@ -1,14 +1,13 @@
 # Fanqie Plus for Windsurf
 
-Use the generated `.windsurf/skills/fanqie-plus/` for Fanqie/Tomato Chinese long-form web novel work.
+Use the `fanqie-plus` skill at `.windsurf/skills/fanqie-plus/` for Fanqie/Tomato Chinese long-form web novel work.
 
-If the skill directory is missing, run from the repository root:
+If the skill directory is missing, link it from the core skill, from the repository root:
 
 ```bash
-python3 scripts/build_adapters.py
+mkdir -p adapters/windsurf/.windsurf/skills
+ln -sfn ../../../../core/fanqie-plus adapters/windsurf/.windsurf/skills/fanqie-plus
 ```
-
-Do not edit generated skill files. Edit `core/fanqie-plus` and rebuild.
 
 The workflows in `.windsurf/workflows/` are thin entry points:
 
