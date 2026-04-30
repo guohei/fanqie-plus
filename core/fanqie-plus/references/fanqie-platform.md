@@ -54,12 +54,19 @@ Mark these in `02_outline/outline_anchors.yaml` and review around them.
 ## Poison Points To Check
 
 - Protagonist passive for too long.
+- Protagonist acts stupidly only to keep the plot alive.
+- A misunderstanding could be solved by one normal sentence but is artificially prolonged.
 - Important insult or threat receives no satisfying response.
 - Romance betrayal or humiliation is handled casually.
 - Gold finger has no limitation or no reader-visible payoff.
 - Supporting cast exists only to praise the protagonist.
+- Supporting cast exists only to die, praise, deliver exposition, or hand over resources.
+- The protagonist forgives enemies without cost, leverage, or reader-satisfying reason.
+- The story applies different moral rules to the protagonist and everyone else without acknowledging it.
 - Long explanations replace scenes.
 - Core promise in title/introduction is absent from the opening chapters.
+
+When a poison point appears, repair the cause rather than masking it with narration: give the protagonist a rational constraint, let characters speak the obvious sentence, add cost to forgiveness, or turn a tool character into someone with a desire and tactic.
 
 ## Audit And Compliance
 

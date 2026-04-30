@@ -16,6 +16,20 @@ Write the answers to `00_config/idea_seed.md`.
 
 If the user is vague, give 2-3 concrete options. Do not ask a long questionnaire unless the user wants a workshop.
 
+## High-Hook Shuangwen Seeds
+
+For fast-paced Fanqie projects, especially 男频、脑洞、逆袭、系统、战神、玄幻/都市爽文, also lock these five commercial hooks early. Ask them one at a time only when the answer is missing; infer reasonable defaults when the user wants speed.
+
+| Seed | What to decide | Why it matters |
+| --- | --- | --- |
+| Gold finger / core advantage | Ability, limit, upgrade route, first visible use | Unlimited power has no tension; delayed payoff loses readers. |
+| First face-slap target | Who underestimates the protagonist, why they deserve it, what larger pressure follows | Golden three chapters need an early emotional payoff. |
+| Pressure engine | Debt, deadline, survival risk, family/romance threat, revenge, status collapse | Pressure makes the payoff feel earned. |
+| Payoff cadence | Chapter 1-3 first payoff, around chapter 10 first small climax, around chapter 30 first arc payoff | Prevents long runway from becoming warm-up. |
+| Protagonist memory tag | One repeatable behavior, voice habit, taboo, tactic, or worldview | Readers need a quick reason to remember this lead. |
+
+Record the answers in `00_config/idea_seed.md` and reflect the first 30-chapter cadence in `platform_strategy.md`.
+
 ## Fanqie Positioning
 
 Create `00_config/target_profile.md` with:

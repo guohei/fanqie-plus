@@ -21,7 +21,7 @@ Before drafting, state internally or in a brief work note:
 - Chapter number and target word count.
 - Pace tier: slow, medium, or fast.
 - A/B/C quota item, or "none".
-- Specific ending hook.
+- Hook type and specific ending hook.
 - One emotional target for the reader.
 - Required continuity points from previous chapter.
 
@@ -45,11 +45,27 @@ Write a beat sheet before正文:
 ## Constraints
 - Pace: [slow/medium/fast]
 - Quota: [A/B/C/none]
+- Hook type: [crisis/suspense/reversal/opportunity/conflict/reveal]
 - Must not resolve: [...]
 - Memory updates expected: [...]
 ```
 
 If the beat sheet violates anchor quota, fix it before writing正文.
+
+## Ending Hook Types
+
+Choose one concrete hook type before drafting the chapter ending. Do not end with a vague summary such as "更大的危险正在靠近" unless the danger has a visible carrier.
+
+| Type | Use when | Concrete signal |
+| --- | --- | --- |
+| Crisis | Safety breaks at the end | Stronger enemy, countdown, exposed location, trap trigger |
+| Suspense | A question opens but answer is withheld | Box, message, name, bloodline, missing person, abnormal rule |
+| Reversal | The apparent result flips | Enemy survives, ally changes side, win becomes bait |
+| Opportunity | A new path appears | Resource, invitation, clue, mentor, system reward |
+| Conflict | A clash becomes unavoidable | Challenge, threat, public provocation, deadline duel |
+| Reveal | Truth is promised or partly exposed | Identity clue, old secret, hidden motive, larger conspiracy |
+
+The hook should connect to the chapter's pressure or payoff, not appear as a detached teaser.
 
 ## Drafting Standards
 

@@ -73,6 +73,19 @@ Track:
 - status: open/resolved/reframed
 - related characters
 
+For information-gap hooks, also track:
+
+- known_by: reader, protagonist, antagonist, specific supporting characters
+- hidden_from: reader, protagonist, antagonist, specific supporting characters
+- reveal_range: small gap within 3-5 chapters, medium gap within 15-20 chapters, large gap within 50+ chapters
+- payoff_type: face-slap, reversal, rescue, betrayal, identity reveal, ability reveal, clue reveal
+
+Use information gaps deliberately:
+
+- Reader knows, character does not: creates tension and anticipation.
+- Protagonist knows, opponent does not: powers face-slap and reversal scenes.
+- Character knows, reader does not: creates mystery, but must be fairly seeded.
+
 ## Update Rules
 
 Update memory only after a chapter passes gates or after the user accepts a repaired version.
