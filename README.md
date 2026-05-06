@@ -11,6 +11,8 @@ The single source of truth is the standard Agent Skill in `core/fanqie-plus/`. A
 - Continue chapters with beat sheets, memory retrieval, quality gates, and memory updates.
 - Repair chapters that fail gates.
 - Review golden three chapters, 8w/10w/15w checkpoints, pacing, continuity, and platform compliance.
+- Use an indexed genre/hook/opening/style craft library on demand, without loading the whole corpus.
+- Run advisory reader simulation and cross-agent review at 10-chapter and Fanqie checkpoints.
 - Export clean Fanqie-ready plain text.
 
 ## Repository Layout
@@ -23,12 +25,15 @@ core/fanqie-plus/                 # the skill — single source of truth
   scripts/
     gate_check.py                 # deterministic mechanical gate
     export_fanqie.py              # Markdown → Fanqie plain text
+    fanqie_audit.py               # fanqie layout adapter for advisory review
+    reader_simulator.py           # advisory reader-perspective scoring
+    cross_agent_reviewer.py       # external-review prompt and issue parser
 
 adapters/gemini/                  # Gemini CLI extension (slash commands)
 adapters/windsurf/                # Windsurf workflows
 ```
 
-The agent handles project setup, chapter discovery, and memory updates directly with its file tools. Only the two scripts above remain — they do regex pattern matching and text transformation, where determinism matters.
+The agent handles project setup, chapter discovery, and memory updates directly with its file tools. Scripts are reserved for deterministic gates, text transformation, and advisory review reports.
 
 ## Install For Codex
 
@@ -108,10 +113,12 @@ Have the agent create the project skeleton based on the user's idea:
 ```
 
 The agent fills the seed files based on the user's actual idea, not a generic template.
+When the genre is clear, the agent may enter `core/fanqie-plus/references/genres/INDEX.md`, choose one relevant index, and load only the matching leaf file for genre structure.
 
 ### 2. Continue The Next Chapter
 
 The agent finds the next chapter by reading `03_memory/novel_state.json` or listing `04_chapters/final/`, loads the minimal context, drafts a beat sheet, and writes the chapter into `04_chapters/drafts/`.
+For craft support, it may lazy-load at most two leaf files from `references/genres/` per chapter, such as an opening template, hook technique, or style module.
 
 ### 3. Run Mechanical Gates
 
@@ -143,6 +150,17 @@ core/fanqie-plus/scripts/export_fanqie.py ./my-novel --combined
 ```
 
 Runs mechanical gates first, then exports clean `.txt` files under `06_export/fanqie/`. Use `--no-gate` only for diagnostic cleanup, not for publish-ready packages.
+
+### 6. Run Advisory Review
+
+At 10-chapter reviews, 8w, 10w, 15w, and volume endings:
+
+```bash
+core/fanqie-plus/scripts/fanqie_audit.py --project-root ./my-novel reader --chapter 50
+core/fanqie-plus/scripts/fanqie_audit.py --project-root ./my-novel cross-review --chapter 50
+```
+
+Reader reports are copied to `05_reviews/reader/`; cross-review prompts are copied to `05_reviews/cross/` for a separate LLM to review.
 
 ## Quality Gates
 
@@ -178,6 +196,8 @@ Validate the core skill with the Codex skill creator validator:
 ```bash
 python3 /path/to/skill-creator/scripts/quick_validate.py core/fanqie-plus
 ```
+
+Third-party notices for bundled MIT-licensed review scripts and craft references are in `core/fanqie-plus/THIRD_PARTY_NOTICES.md`.
 
 ## Update The GitHub Repo
 

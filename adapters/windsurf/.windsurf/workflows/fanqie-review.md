@@ -11,3 +11,5 @@ Review requested chapters or checkpoints. Lead with blocking issues:
 - Pacing quota violations.
 - Fanqie platform promise mismatch.
 - Obvious AI-pattern residue.
+
+At 10-chapter reviews, 8w, 10w, 15w, and volume endings, consider `scripts/fanqie_audit.py` for advisory reader simulation or cross-agent review. Keep those reports in `05_reviews/`.

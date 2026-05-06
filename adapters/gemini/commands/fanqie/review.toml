@@ -2,7 +2,7 @@ description = "Review Fanqie chapters or checkpoints"
 prompt = """
 Use the fanqie-plus skill from skills/fanqie-plus.
 
-Review the requested chapters or checkpoint. Prioritize blocking issues first: golden three chapter failures, continuity breaks, pacing quota violations, meta contamination, weak hooks, and Fanqie platform mismatch.
+Review the requested chapters or checkpoint. Prioritize blocking issues first: golden three chapter failures, continuity breaks, pacing quota violations, meta contamination, weak hooks, and Fanqie platform mismatch. At 10-chapter and Fanqie checkpoints, use fanqie_audit.py for advisory reader simulation or cross-agent review when useful.
 
 User input:
 {{args}}

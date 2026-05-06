@@ -25,9 +25,10 @@ Use when the user has an idea, trope, genre, title, or only says they want to wr
 
 1. Read `references/open-book.md`.
 2. Confirm or infer the five seed fields: target reader, style, forbidden zones, automation level, and target scale.
-3. Create the directory structure under `Project Layout` with your file tools.
-4. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, not generic templates.
-5. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
+3. Identify the dominant genre. If the genre is clear, read `references/genres/INDEX.md`, then `references/genres/INDEX-genre-frameworks.md`, then load only the matching genre subfile. Do not read the whole `genres/` tree.
+4. Create the directory structure under `Project Layout` with your file tools.
+5. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
+6. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
 
 ### 2. Plan the long book
 
@@ -44,10 +45,11 @@ Use for "继续写", "写下一章", "今天N章", or any single/batch chapter d
 
 1. Read `references/chapter-pipeline.md`, `references/story-memory.md`, and `references/quality-gates.md`.
 2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Read the minimal context set listed in `chapter-pipeline.md`.
-3. Create a beat sheet before正文 and keep it outside chapter正文. Confirm the chapter pace tier and the one allowed major quota item.
-4. Draft 2000-4000 Chinese characters per chapter unless the user or project config says otherwise.
-5. Run quality gate checks. Use `scripts/gate_check.py` for mechanical checks, then perform semantic checks yourself.
-6. If passed, update `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv` with the chapter outcome.
+3. Optionally lazy-load craft support from `references/genres/`: opening templates for chapters 1-3/new arcs, hook techniques for chapter endings, or style modules for a specific prose problem. Load at most 2 genre leaf files per chapter and never a whole genre subdirectory.
+4. Create a beat sheet before正文 and keep it outside chapter正文. Confirm the chapter pace tier and the one allowed major quota item.
+5. Draft 2000-4000 Chinese characters per chapter unless the user or project config says otherwise.
+6. Run quality gate checks. Use `scripts/gate_check.py` for mechanical checks, then perform semantic checks yourself.
+7. If passed, update `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv` with the chapter outcome.
 
 ### 4. Repair a chapter
 
@@ -64,7 +66,9 @@ Use every 10 chapters and at Fanqie checkpoints.
 
 1. Read `references/fanqie-platform.md` and `references/quality-gates.md`.
 2. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
-3. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later".
+3. At every 10-chapter review and Fanqie checkpoint, optionally read `references/reader-review.md` and run `scripts/fanqie_audit.py --project-root <book> reader --chapter <N>` to create an advisory reader report under `05_reviews/reader/`.
+4. At 8w/10w/15w or volume endings, optionally read `references/cross-review.md` and run `scripts/fanqie_audit.py --project-root <book> cross-review --chapter <N>` to generate a prompt for a different LLM. Parse that external review with `scripts/cross_agent_reviewer.py parse` if a report is saved.
+5. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat cross-review P0 findings as blocking before continuing.
 
 ### 6. Export to Fanqie
 
@@ -116,12 +120,18 @@ book/
 - `references/quality-gates.md`: blocking and advisory gates.
 - `references/story-memory.md`: memory files and update rules.
 - `references/export-fanqie.md`: platform plain-text formatting.
+- `references/genres/`: genre, hook, opening, and style craft library. Always enter through `genres/INDEX.md` and load only selected leaf files.
+- `references/reader-review.md`: advisory reader simulation protocol for 10-chapter and Fanqie checkpoint reviews.
+- `references/cross-review.md`: cross-agent review protocol for volume endings and commercial checkpoints.
 
 ## Scripts
 
 - `scripts/gate_check.py`: run mechanical chapter checks (URL/contact/meta contamination, blocking character count, hook signal) and optionally write JSON.
 - `scripts/export_fanqie.py`: gate final chapters, then convert Markdown/text into Fanqie-ready `.txt`.
+- `scripts/fanqie_audit.py`: adapt fanqie-plus project layout to advisory reader/cross-review scripts and export reports back to `05_reviews/`.
+- `scripts/reader_simulator.py`: heuristic reader-perspective scoring. Advisory only; use through `fanqie_audit.py` for fanqie-plus projects.
+- `scripts/cross_agent_reviewer.py`: generate prompts for a separate LLM and parse P0/P1/P2 issue reports. Advisory review layer, not a self-review substitute.
 
 Scripts are reserved for deterministic pattern matching and text transformation. Project setup, chapter discovery, and memory updates are handled directly by the agent with its file tools — see the workflow steps above.
 
-Semantic checks such as emotional pull, hidden pacing acceleration, trope fit, and character voice must be performed by the agent.
+Semantic checks such as emotional pull, hidden pacing acceleration, trope fit, and character voice must be performed by the agent. Reader simulation and cross-agent review assist stage review; they do not replace judgment.

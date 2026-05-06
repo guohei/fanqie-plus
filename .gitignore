@@ -3,6 +3,7 @@ __pycache__/
 .DS_Store
 .claude/
 corpus/
+.audit_workdir/
 
 # Local adapter skill links/copies.
 adapters/codex/skills/

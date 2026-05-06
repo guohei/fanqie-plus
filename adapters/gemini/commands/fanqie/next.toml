@@ -2,7 +2,7 @@ description = "Continue the next Fanqie chapter"
 prompt = """
 Use the fanqie-plus skill from skills/fanqie-plus.
 
-Continue the next chapter. Identify the chapter number, read the minimal context, create a beat sheet outside正文, draft a 2000-4000 CJK character chapter unless project config overrides it, run gates, and update memory only after the chapter passes.
+Continue the next chapter. Identify the chapter number, read the minimal context, optionally lazy-load at most two relevant genre/hook/style leaf files, create a beat sheet outside正文, draft a 2000-4000 CJK character chapter unless project config overrides it, run gates, and update memory only after the chapter passes.
 
 User input:
 {{args}}
