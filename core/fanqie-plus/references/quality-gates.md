@@ -9,6 +9,7 @@ If any blocking gate fails, repair before continuing.
 | Gate | Failure examples |
 | --- | --- |
 | Meta contamination | TODO, author note, analysis, beat labels, gate comments inside正文 |
+| Chapter length | Below or above the project/default chapter range, normally 2000-4000 Chinese characters |
 | Platform compliance | URL, email, social/contact account, QR code, off-platform group, ad, transaction guidance, or unsafe policy content |
 | Missing hook | Ending has no concrete next-click reason |
 | Anchor violation | Resolves forbidden main conflict or outruns current outline anchor |
@@ -33,7 +34,7 @@ These usually require improvement but may not block a slow setup chapter:
 
 Use `scripts/gate_check.py` for:
 
-- Word/character count range.
+- Character count range. Default 2000-4000 CJK characters is blocking unless project config explicitly overrides it.
 - Forbidden meta markers.
 - URL/contact/ad/off-platform diversion patterns.
 - Markdown artifacts.

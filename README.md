@@ -34,7 +34,7 @@ The agent handles project setup, chapter discovery, and memory updates directly 
 
 ```bash
 mkdir -p ~/.codex/skills
-cp -R core/fanqie-plus ~/.codex/skills/fanqie-plus
+rsync -a --delete --exclude '__pycache__/' core/fanqie-plus/ ~/.codex/skills/fanqie-plus/
 ```
 
 Then ask Codex naturally:
@@ -123,7 +123,7 @@ core/fanqie-plus/scripts/gate_check.py ./my-novel/04_chapters/final/第1章.md \
 The script flags:
 
 - missing chapter title
-- character count out of range
+- character count out of range (default 2000-4000 CJK characters, blocking)
 - meta contamination
 - URL/contact/ad/off-platform diversion patterns
 - Markdown artifacts
@@ -142,7 +142,7 @@ The agent appends a summary to `03_memory/chapter_summaries.md`, bumps `current_
 core/fanqie-plus/scripts/export_fanqie.py ./my-novel --combined
 ```
 
-Exports clean `.txt` files under `06_export/fanqie/`.
+Runs mechanical gates first, then exports clean `.txt` files under `06_export/fanqie/`. Use `--no-gate` only for diagnostic cleanup, not for publish-ready packages.
 
 ## Quality Gates
 
@@ -165,6 +165,12 @@ Compile scripts:
 
 ```bash
 python3 -m py_compile core/fanqie-plus/scripts/*.py
+```
+
+Run regression tests:
+
+```bash
+python3 -m unittest discover -s tests -v
 ```
 
 Validate the core skill with the Codex skill creator validator:

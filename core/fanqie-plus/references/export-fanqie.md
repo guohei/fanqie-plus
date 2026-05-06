@@ -15,11 +15,13 @@ Use this reference when exporting final chapters for Fanqie-style posting.
 
 ## Pre-Export Checks
 
+- Run `scripts/export_fanqie.py` without `--no-gate` for publish-ready export. It should block chapters that fail mechanical gates before writing `.txt`.
 - Every exported file contains正文 only.
 - No beat sheet, TODO, author note, analysis, or gate comments.
 - No empty chapter body.
 - Chapter order is numeric.
 - File names sort correctly enough for the platform package.
+- Use `--no-gate` only for diagnostic/manual cleanup, not for upload-ready packages.
 
 ## Manual Conversion Example
 

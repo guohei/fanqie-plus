@@ -205,9 +205,9 @@ def check(path: Path, min_chars: int, max_chars: int) -> dict:
 
     cjk = count_cjk(text)
     if cjk < min_chars:
-        warnings.append({"type": "short_chapter", "message": f"CJK character count {cjk} is below {min_chars}."})
+        findings.append({"type": "short_chapter", "message": f"CJK character count {cjk} is below {min_chars}."})
     if cjk > max_chars:
-        warnings.append({"type": "long_chapter", "message": f"CJK character count {cjk} is above {max_chars}."})
+        findings.append({"type": "long_chapter", "message": f"CJK character count {cjk} is above {max_chars}."})
 
     for pattern in META_PATTERNS:
         if re.search(pattern, text, flags=re.IGNORECASE):
@@ -249,8 +249,8 @@ def check(path: Path, min_chars: int, max_chars: int) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Mechanical Fanqie chapter gate.")
     parser.add_argument("chapter_file")
-    parser.add_argument("--min-chars", type=int, default=1800)
-    parser.add_argument("--max-chars", type=int, default=4500)
+    parser.add_argument("--min-chars", type=int, default=2000)
+    parser.add_argument("--max-chars", type=int, default=4000)
     parser.add_argument("--json-out", default="")
     args = parser.parse_args()
 

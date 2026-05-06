@@ -13,6 +13,7 @@ Build and maintain a long-form Chinese web novel optimized for Fanqie-style mobi
 - Keep正文 and meta separate. Never place analysis, TODOs, gate notes, bracketed instructions, or author comments inside chapter正文.
 - Prefer the smallest useful context: project state, outline anchor, current chapter brief, relevant characters, last chapter, and selected memory snippets.
 - Do not advance to the next chapter while the current chapter gate fails. Repair first.
+- Treat Fanqie-ready chapters as publishable units: default target is 2000-4000 Chinese characters, one concrete ending hook, and no non正文 residue.
 - Do not change the main roadmap casually. If the user wants a major turn, run a rewrite-planning pass and update downstream outline anchors, memory, and chapter queue.
 - For long books, preserve runway. Do not resolve core conflicts early; keep chapter progress inside the current anchor quota.
 
@@ -43,7 +44,7 @@ Use for "继续写", "写下一章", "今天N章", or any single/batch chapter d
 
 1. Read `references/chapter-pipeline.md`, `references/story-memory.md`, and `references/quality-gates.md`.
 2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Read the minimal context set listed in `chapter-pipeline.md`.
-3. Create a beat sheet before正文. Confirm the chapter pace tier and the one allowed major quota item.
+3. Create a beat sheet before正文 and keep it outside chapter正文. Confirm the chapter pace tier and the one allowed major quota item.
 4. Draft 2000-4000 Chinese characters per chapter unless the user or project config says otherwise.
 5. Run quality gate checks. Use `scripts/gate_check.py` for mechanical checks, then perform semantic checks yourself.
 6. If passed, update `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv` with the chapter outcome.
@@ -70,7 +71,7 @@ Use every 10 chapters and at Fanqie checkpoints.
 Use before posting or when the user asks for 番茄格式.
 
 1. Read `references/export-fanqie.md`.
-2. Run `scripts/export_fanqie.py` or manually apply the same rules.
+2. Run `scripts/export_fanqie.py` or manually apply the same rules. The script runs mechanical gates by default; use `--no-gate` only for diagnostics, never for publish-ready export.
 3. Verify there are no Markdown markers, blank-line gaps, indentation, metadata blocks, or non正文 notes in the exported text.
 
 ## Project Layout
@@ -118,8 +119,8 @@ book/
 
 ## Scripts
 
-- `scripts/gate_check.py`: run mechanical chapter checks (URL/contact/meta contamination, character count, hook signal) and optionally write JSON.
-- `scripts/export_fanqie.py`: convert final chapter Markdown/text into Fanqie-ready `.txt`.
+- `scripts/gate_check.py`: run mechanical chapter checks (URL/contact/meta contamination, blocking character count, hook signal) and optionally write JSON.
+- `scripts/export_fanqie.py`: gate final chapters, then convert Markdown/text into Fanqie-ready `.txt`.
 
 Scripts are reserved for deterministic pattern matching and text transformation. Project setup, chapter discovery, and memory updates are handled directly by the agent with its file tools — see the workflow steps above.
 

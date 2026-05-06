@@ -27,7 +27,7 @@ Before drafting, state internally or in a brief work note:
 
 ## Beat Sheet First
 
-Write a beat sheet before正文:
+Write a beat sheet before正文. Save it as a work note or `05_reviews/第N章-beat.md`; never paste it into `04_chapters/final/` or exported正文.
 
 ```markdown
 # 第N章 Beat Sheet
@@ -90,3 +90,5 @@ For multiple chapters:
 Save draft正文 in `04_chapters/drafts/第N章.md`.
 Save accepted final正文 in `04_chapters/final/第N章.md`.
 Save reviews in `05_reviews/第N章-gate.json` or `05_reviews/第N章-review.md`.
+
+Default publishable chapter length is 2000-4000 Chinese characters unless the project config sets a different range. Treat length failure as a repair item, not a harmless warning, because recommendation-facing Fanqie chapters need stable update units.
