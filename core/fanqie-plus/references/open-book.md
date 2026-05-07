@@ -75,3 +75,7 @@ Create `00_config/platform_strategy.md` with:
 - 8w and 15w evaluation preparation.
 - Update cadence and buffer target.
 - Risk list: content issues, pacing risks, trope mismatch, weak title/introduction.
+
+## Project Agent Instructions
+
+Create project-root `AGENTS.md` from `assets/project_AGENTS.md` during setup. This file is part of the book skeleton, not optional documentation; it reminds future agents to load `fanqie-plus`, keep正文/meta separate, run chapter gates, and update memory only after a chapter passes.

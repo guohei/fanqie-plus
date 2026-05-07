@@ -2,7 +2,7 @@ description = "Open a new Fanqie long-novel project"
 prompt = """
 Use the fanqie-plus skill from skills/fanqie-plus.
 
-Open a new Fanqie long-novel project from the user's idea. Confirm or infer the five required seed fields, optionally load one matching genre framework via references/genres/INDEX.md, initialize the project structure, and create the opening strategy files. If enough information is missing, ask one concise question before writing files.
+Open a new Fanqie long-novel project from the user's idea. Confirm or infer the five required seed fields, optionally load one matching genre framework via references/genres/INDEX.md, initialize the project structure, create project-root AGENTS.md from assets/project_AGENTS.md, and create the opening strategy files. If enough information is missing, ask one concise question before writing files.
 
 User input:
 {{args}}

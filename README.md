@@ -13,6 +13,7 @@ The single source of truth is the standard Agent Skill in `core/fanqie-plus/`. A
 - Review golden three chapters, 8w/10w/15w checkpoints, pacing, continuity, and platform compliance.
 - Use an indexed genre/hook/opening/style craft library on demand, without loading the whole corpus.
 - Run advisory reader simulation and cross-agent review at 10-chapter and Fanqie checkpoints.
+- Run 10-chapter consistency audits for outline, memory, chapter queue, pacing ledger, and final chapter drift.
 - Export clean Fanqie-ready plain text.
 
 ## Repository Layout
@@ -21,6 +22,8 @@ The single source of truth is the standard Agent Skill in `core/fanqie-plus/`. A
 core/fanqie-plus/                 # the skill — single source of truth
   SKILL.md
   agents/openai.yaml
+  assets/
+    project_AGENTS.md             # template copied into each novel project root
   references/
   scripts/
     gate_check.py                 # deterministic mechanical gate
@@ -103,6 +106,7 @@ Run the workflows for opening, planning, continuing, reviewing, and exporting.
 Have the agent create the project skeleton based on the user's idea:
 
 ```text
+AGENTS.md         project-level instruction file that forces future agents to use fanqie-plus
 00_config/        idea_seed.md, target_profile.md, style_bible.md, platform_strategy.md
 01_bible/         characters.yaml, world.md, timeline.yaml, foreshadowing.yaml
 02_outline/       novel_roadmap.md, volume_plan.md, chapter_queue.yaml, outline_anchors.yaml
@@ -112,7 +116,7 @@ Have the agent create the project skeleton based on the user's idea:
 06_export/fanqie/
 ```
 
-The agent fills the seed files based on the user's actual idea, not a generic template.
+The agent also creates project-root `AGENTS.md` from `core/fanqie-plus/assets/project_AGENTS.md` so future agents entering the book directory are told to use `fanqie-plus`. The agent fills the seed files based on the user's actual idea, not a generic template.
 When the genre is clear, the agent may enter `core/fanqie-plus/references/genres/INDEX.md`, choose one relevant index, and load only the matching leaf file for genre structure.
 
 ### 2. Continue The Next Chapter
@@ -143,7 +147,20 @@ Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceler
 
 The agent appends a summary to `03_memory/chapter_summaries.md`, bumps `current_chapter` and `current_words` in `novel_state.json`, and adds a row to `03_memory/pacing_ledger.csv` (columns: `chapter,title,pace,quota,hook_type,words,gate_passed,notes`). Only update memory after the chapter passes gates or the user accepts the repaired version.
 
-### 5. Export Fanqie Text
+### 5. Run 10-Chapter Consistency Audit
+
+After every 10 accepted final chapters, the project-level `AGENTS.md` tells future agents to stop before continuing and run the consistency audit in `core/fanqie-plus/references/consistency-audit.md`.
+
+The audit compares:
+
+- roadmap, volume plan, outline anchors, and chapter queue
+- `novel_state.json`, chapter summaries, and pacing ledger
+- recent accepted正文 in `04_chapters/final/`
+- character, timeline, and foreshadowing files when needed
+
+Write the report to `05_reviews/consistency/chapter-XXX.md`. Blocking conflicts must be repaired before the agent drafts the next chapter. If正文 improved a stale细纲, update the downstream outline and memory instead of forcing正文 backward.
+
+### 6. Export Fanqie Text
 
 ```bash
 core/fanqie-plus/scripts/export_fanqie.py ./my-novel --combined
@@ -151,7 +168,7 @@ core/fanqie-plus/scripts/export_fanqie.py ./my-novel --combined
 
 Runs mechanical gates first, then exports clean `.txt` files under `06_export/fanqie/`. Use `--no-gate` only for diagnostic cleanup, not for publish-ready packages.
 
-### 6. Run Advisory Review
+### 7. Run Advisory Review
 
 At 10-chapter reviews, 8w, 10w, 15w, and volume endings:
 
@@ -203,6 +220,6 @@ Third-party notices for bundled MIT-licensed review scripts and craft references
 
 ```bash
 git add .
-git commit -m "refactor: trim helper scripts and adapter layer"
+git commit -m "feat: add project agents contract"
 git push
 ```

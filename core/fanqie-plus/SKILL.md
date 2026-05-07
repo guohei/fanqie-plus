@@ -27,8 +27,9 @@ Use when the user has an idea, trope, genre, title, or only says they want to wr
 2. Confirm or infer the five seed fields: target reader, style, forbidden zones, automation level, and target scale.
 3. Identify the dominant genre. If the genre is clear, read `references/genres/INDEX.md`, then `references/genres/INDEX-genre-frameworks.md`, then load only the matching genre subfile. Do not read the whole `genres/` tree.
 4. Create the directory structure under `Project Layout` with your file tools.
-5. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
-6. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
+5. Create project-root `AGENTS.md` from `assets/project_AGENTS.md` so future agents entering the book directory are explicitly told to use this skill.
+6. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
+7. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
 
 ### 2. Plan the long book
 
@@ -65,10 +66,11 @@ Use when a gate fails, the user dislikes a chapter, or a review identifies concr
 Use every 10 chapters and at Fanqie checkpoints.
 
 1. Read `references/fanqie-platform.md` and `references/quality-gates.md`.
-2. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
-3. At every 10-chapter review and Fanqie checkpoint, optionally read `references/reader-review.md` and run `scripts/fanqie_audit.py --project-root <book> reader --chapter <N>` to create an advisory reader report under `05_reviews/reader/`.
-4. At 8w/10w/15w or volume endings, optionally read `references/cross-review.md` and run `scripts/fanqie_audit.py --project-root <book> cross-review --chapter <N>` to generate a prompt for a different LLM. Parse that external review with `scripts/cross_agent_reviewer.py parse` if a report is saved.
-5. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat cross-review P0 findings as blocking before continuing.
+2. At every 10-chapter review, read `references/consistency-audit.md` and write the consistency report to `05_reviews/consistency/chapter-XXX.md` before continuing.
+3. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
+4. At every 10-chapter review and Fanqie checkpoint, optionally read `references/reader-review.md` and run `scripts/fanqie_audit.py --project-root <book> reader --chapter <N>` to create an advisory reader report under `05_reviews/reader/`.
+5. At 8w/10w/15w or volume endings, optionally read `references/cross-review.md` and run `scripts/fanqie_audit.py --project-root <book> cross-review --chapter <N>` to generate a prompt for a different LLM. Parse that external review with `scripts/cross_agent_reviewer.py parse` if a report is saved.
+6. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat consistency-audit blocking conflicts and cross-review P0 findings as blocking before continuing.
 
 ### 6. Export to Fanqie
 
@@ -84,6 +86,7 @@ Use this layout unless an existing project already has a clear structure.
 
 ```text
 book/
+├── AGENTS.md
 ├── 00_config/
 │   ├── idea_seed.md
 │   ├── target_profile.md
@@ -120,9 +123,11 @@ book/
 - `references/quality-gates.md`: blocking and advisory gates.
 - `references/story-memory.md`: memory files and update rules.
 - `references/export-fanqie.md`: platform plain-text formatting.
+- `references/consistency-audit.md`: 10-chapter outline/memory/正文 drift review and repair rules.
 - `references/genres/`: genre, hook, opening, and style craft library. Always enter through `genres/INDEX.md` and load only selected leaf files.
 - `references/reader-review.md`: advisory reader simulation protocol for 10-chapter and Fanqie checkpoint reviews.
 - `references/cross-review.md`: cross-agent review protocol for volume endings and commercial checkpoints.
+- `assets/project_AGENTS.md`: template for project-root `AGENTS.md`, created during book setup.
 
 ## Scripts
 
