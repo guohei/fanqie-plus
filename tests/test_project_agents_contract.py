@@ -42,7 +42,6 @@ class ProjectAgentsContractTests(unittest.TestCase):
         required_snippets = [
             "Use the `fanqie-plus` skill",
             "Do not continue to the next chapter",
-            "2000-4000",
             "scripts/gate_check.py",
             "04_chapters/final/",
             "Keep正文 and meta separate",
@@ -68,6 +67,39 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertNotIn("events promised in the outline or chapter queue but missing from正文", text)
         self.assertNotIn("events written in正文 but not reflected in memory", text)
         self.assertLessEqual(len(text.splitlines()), 45)
+
+    def test_project_agents_keeps_style_and_hook_rules_in_skill_references(self) -> None:
+        text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
+
+        forbidden_snippets = [
+            "Every chapter needs one concrete next-click ending hook",
+            "ending hook",
+            "hook quality",
+            "style, AI-pattern residue",
+        ]
+
+        for snippet in forbidden_snippets:
+            self.assertNotIn(snippet, text)
+
+        self.assertIn("references/quality-gates.md", text)
+
+    def test_project_agents_keeps_platform_and_pacing_details_in_references(self) -> None:
+        text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
+
+        forbidden_snippets = [
+            "2000-4000",
+            "Target publishable chapter length",
+            "Each chapter may trigger at most one major quota item",
+            "A main conflict advance",
+            "B decisive relationship change",
+            "C full core-secret reveal",
+        ]
+
+        for snippet in forbidden_snippets:
+            self.assertNotIn(snippet, text)
+
+        self.assertIn("references/quality-gates.md", text)
+        self.assertIn("references/outline-anchor.md", text)
 
     def test_consistency_audit_reference_defines_full_review_contract(self) -> None:
         self.assertTrue(CONSISTENCY_AUDIT.is_file(), "missing consistency audit reference")

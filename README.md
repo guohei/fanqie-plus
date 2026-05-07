@@ -116,7 +116,9 @@ AGENTS.md         project-level instruction file that forces future agents to us
 06_export/fanqie/
 ```
 
-The agent also creates project-root `AGENTS.md` from `core/fanqie-plus/assets/project_AGENTS.md` so future agents entering the book directory are told to use `fanqie-plus`. The agent fills the seed files based on the user's actual idea, not a generic template.
+The agent also creates project-root `AGENTS.md` from `core/fanqie-plus/assets/project_AGENTS.md` so future agents entering the book directory are told to use `fanqie-plus`. This project-level file is intentionally minimal: it keeps hard workflow boundaries and points agents back to skill references. Style, chapter hooks, chapter length, AI-pattern cleanup, and pacing quota details stay in project config and references such as `00_config/style_bible.md`, `references/quality-gates.md`, and `references/outline-anchor.md`.
+
+The agent fills the seed files based on the user's actual idea, not a generic template.
 When the genre is clear, the agent may enter `core/fanqie-plus/references/genres/INDEX.md`, choose one relevant index, and load only the matching leaf file for genre structure.
 
 ### 2. Continue The Next Chapter

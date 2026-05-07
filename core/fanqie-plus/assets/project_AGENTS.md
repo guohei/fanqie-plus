@@ -12,21 +12,20 @@ This is a `fanqie-plus` Fanqie/Tomato long-novel project.
 
 - Keep正文 and meta separate. Never put beat sheets, TODOs, gate notes, analysis, author comments, or review text inside chapter正文.
 - Draft accepted chapter正文 under `04_chapters/final/`. Draft work may live under `04_chapters/drafts/`.
-- Target publishable chapter length is 2000-4000 Chinese characters unless `00_config/idea_seed.md` sets a different range.
-- Every chapter needs one concrete next-click ending hook.
+- Follow chapter length and blocking gate rules from the project config and `references/quality-gates.md`.
 - Do not continue to the next chapter while the current chapter fails any blocking gate.
 
 ## Required Checks
 
 - Before drafting, read only the minimal context: `00_config/style_bible.md`, the relevant `02_outline/chapter_queue.yaml` entry, `03_memory/novel_state.json`, the previous final chapter, and relevant memory snippets.
 - Create a beat sheet outside正文 before writing the chapter.
-- Run the fanqie-plus mechanical gate from the skill package with `scripts/gate_check.py` after drafting, then perform semantic checks for pacing, continuity, style, AI-pattern residue, and hook quality.
+- Run the fanqie-plus mechanical gate from the skill package with `scripts/gate_check.py` after drafting, then follow the semantic checks in `references/quality-gates.md`.
 - Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv` only after the chapter passes gates.
 
 ## Long-Book Control
 
 - Preserve runway. Do not resolve final conflicts, core secrets, or major relationship turns before the current outline anchor allows them.
-- Each chapter may trigger at most one major quota item: A main conflict advance, B decisive relationship change, or C full core-secret reveal.
+- Follow outline anchors and pacing quotas in `references/outline-anchor.md`.
 - Use every 10 chapters and Fanqie checkpoints for review: golden three, 8w, 10w, and 15w.
 
 ## 10-Chapter Consistency Audit
