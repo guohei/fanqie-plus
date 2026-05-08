@@ -4,6 +4,8 @@ Use this reference after every 10 accepted final chapters and at any later point
 
 The goal is not to force正文 to match stale细纲. The goal is to keep every source of truth honest: if正文 improved the plan, update the downstream outline and memory; if正文 contradicted the plan by accident, repair the smallest source.
 
+Do not add separate planned-vs-actual ledgers for routine drift. Use this audit plus the existing memory, outline, and pacing files unless the user explicitly asks for a new artifact.
+
 ## Required Inputs
 
 Read the smallest complete audit set:
@@ -75,3 +77,4 @@ passed: true/false
 - Do not rewrite accepted正文 just because the细纲 is stale. Prefer updating `chapter_queue.yaml`, `outline_anchors.yaml`, summaries, or foreshadowing when正文 is coherent and stronger.
 - If the conflict changes future runway, update downstream outline files before drafting the next chapter.
 - After repair, re-read the changed files and update the audit verdict.
+- Advance `next_required_review` in `03_memory/novel_state.json` only after the audit passes.

@@ -7,15 +7,15 @@ description: Use when opening, planning, writing, continuing, reviewing, repairi
 
 Build and maintain a long-form Chinese web novel optimized for Fanqie-style mobile reading. Keep the core workflow platform-neutral so Codex, Gemini CLI, Windsurf, and similar coding agents can follow it with their own file tools.
 
-## Operating Rules
+## Operating Contract
 
 - Treat every novel as a file-backed project, not a one-off chat draft.
 - Keep正文 and meta separate. Never place analysis, TODOs, gate notes, bracketed instructions, or author comments inside chapter正文.
-- Prefer the smallest useful context: project state, outline anchor, current chapter brief, relevant characters, last chapter, and selected memory snippets.
+- Load the smallest useful context: project state, current anchor, chapter brief, relevant characters, last chapter, and selected memory snippets.
 - Do not advance to the next chapter while the current chapter gate fails. Repair first.
-- Treat Fanqie-ready chapters as publishable units: default target is 2000-4000 Chinese characters, one concrete ending hook, and no non正文 residue.
-- Do not change the main roadmap casually. If the user wants a major turn, run a rewrite-planning pass and update downstream outline anchors, memory, and chapter queue.
-- For long books, preserve runway. Do not resolve core conflicts early; keep chapter progress inside the current anchor quota.
+- Keep routine drift control inside existing outline, memory, pacing, and 10-chapter audit files. Do not add new tracking artifacts unless the user explicitly asks.
+- Put craft details in project config or references, not in project-root `AGENTS.md`.
+- Use scripts for deterministic checks and exports; use agent judgment for semantic quality.
 
 ## Workflow
 
@@ -44,13 +44,19 @@ Use when creating or rebuilding the roadmap, volume plan, chapter queue, or mill
 
 Use for "继续写", "写下一章", "今天N章", or any single/batch chapter drafting request.
 
+Treat each chapter as a single-chapter transaction:
+
 1. Read `references/chapter-pipeline.md`, `references/story-memory.md`, and `references/quality-gates.md`.
-2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Read the minimal context set listed in `chapter-pipeline.md`.
-3. Optionally lazy-load craft support from `references/genres/`: opening templates for chapters 1-3/new arcs, hook techniques for chapter endings, or style modules for a specific prose problem. Load at most 2 genre leaf files per chapter and never a whole genre subdirectory.
-4. Create a beat sheet before正文 and keep it outside chapter正文. Confirm the chapter pace tier and the one allowed major quota item.
-5. Draft 2000-4000 Chinese characters per chapter unless the user or project config says otherwise.
-6. Run quality gate checks. Use `scripts/gate_check.py` for mechanical checks, then perform semantic checks yourself.
-7. If passed, update `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv` with the chapter outcome.
+2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Before drafting, check `next_required_review`; if the next chapter would pass a due review, run the stage review first.
+3. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load craft support from `references/genres/` only for chapters 1-3, new arcs, failed quality gates, or a specific prose problem.
+4. Save preflight and beat sheet to `05_reviews/第N章-beat.md`.
+5. Save draft正文 to `04_chapters/drafts/第N章.md`.
+6. Run `scripts/gate_check.py` and save JSON to `05_reviews/第N章-gate.json`.
+7. Write semantic review to `05_reviews/第N章-review.md`; repair before continuing if any blocking gate fails.
+8. After mechanical and semantic gates pass, save accepted正文 to `04_chapters/final/第N章.md`.
+9. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`. Only then may the next chapter start.
+
+For batch requests, repeat this transaction in order for each chapter. Do not draft later chapters before the current chapter's gate, review, final, and memory updates are complete.
 
 ### 4. Repair a chapter
 
@@ -68,8 +74,8 @@ Use every 10 chapters and at Fanqie checkpoints.
 1. Read `references/fanqie-platform.md` and `references/quality-gates.md`.
 2. At every 10-chapter review, read `references/consistency-audit.md` and write the consistency report to `05_reviews/consistency/chapter-XXX.md` before continuing.
 3. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
-4. At every 10-chapter review and Fanqie checkpoint, optionally read `references/reader-review.md` and run `scripts/fanqie_audit.py --project-root <book> reader --chapter <N>` to create an advisory reader report under `05_reviews/reader/`.
-5. At 8w/10w/15w or volume endings, optionally read `references/cross-review.md` and run `scripts/fanqie_audit.py --project-root <book> cross-review --chapter <N>` to generate a prompt for a different LLM. Parse that external review with `scripts/cross_agent_reviewer.py parse` if a report is saved.
+4. Use `references/reader-review.md` only for Fanqie checkpoints, 10-chapter reviews where quality is uncertain, or direct reader-style feedback. Its output is advisory under `05_reviews/reader/`.
+5. Use `references/cross-review.md` at 8w/10w/15w, volume endings, or persistent review disagreement. Parse saved external reports with `scripts/cross_agent_reviewer.py parse`.
 6. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat consistency-audit blocking conflicts and cross-review P0 findings as blocking before continuing.
 
 ### 6. Export to Fanqie

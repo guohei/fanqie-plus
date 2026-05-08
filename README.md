@@ -2,7 +2,7 @@
 
 `fanqie-plus` is a cross-agent skill package for writing and managing long-form Fanqie/Tomato-style Chinese web novels.
 
-The single source of truth is the standard Agent Skill in `core/fanqie-plus/`. Adapter folders for Gemini CLI and Windsurf only contain the platform-specific entry points (slash commands, workflows) and reuse the same skill via a symlink.
+The single source of truth is the standard Agent Skill in `core/fanqie-plus/`. Any skill-compatible agent can install that directory directly. Adapter folders for Gemini CLI and Windsurf only contain platform-specific entry points (slash commands, workflows) and reuse the same skill via a symlink.
 
 ## What It Does
 
@@ -38,14 +38,18 @@ adapters/windsurf/                # Windsurf workflows
 
 The agent handles project setup, chapter discovery, and memory updates directly with its file tools. Scripts are reserved for deterministic gates, text transformation, and advisory review reports.
 
-## Install For Codex
+## Install
+
+### Universal Skill Package
+
+Install `core/fanqie-plus/` into the skill directory used by your agent:
 
 ```bash
-mkdir -p ~/.codex/skills
-rsync -a --delete --exclude '__pycache__/' core/fanqie-plus/ ~/.codex/skills/fanqie-plus/
+mkdir -p <agent-skill-dir>
+rsync -a --delete --exclude '__pycache__/' core/fanqie-plus/ <agent-skill-dir>/fanqie-plus/
 ```
 
-Then ask Codex naturally:
+Then ask the agent naturally:
 
 ```text
 用 fanqie-plus 帮我开一本都市脑洞番茄长篇。
@@ -54,7 +58,18 @@ Then ask Codex naturally:
 导出番茄格式。
 ```
 
-## Use With Gemini CLI
+The installed skill root should contain `SKILL.md`, `references/`, `scripts/`, and `assets/`.
+
+### Known Integrations
+
+#### Codex
+
+```bash
+mkdir -p ~/.codex/skills
+rsync -a --delete --exclude '__pycache__/' core/fanqie-plus/ ~/.codex/skills/fanqie-plus/
+```
+
+#### Gemini CLI
 
 Link the skill into the Gemini extension folder, then point Gemini at it:
 
@@ -82,7 +97,7 @@ Available slash commands:
 /fanqie:export   Export final chapters to Fanqie plain text
 ```
 
-## Use With Windsurf
+#### Windsurf
 
 ```bash
 mkdir -p adapters/windsurf/.windsurf/skills
@@ -123,13 +138,13 @@ When the genre is clear, the agent may enter `core/fanqie-plus/references/genres
 
 ### 2. Continue The Next Chapter
 
-The agent finds the next chapter by reading `03_memory/novel_state.json` or listing `04_chapters/final/`, loads the minimal context, drafts a beat sheet, and writes the chapter into `04_chapters/drafts/`.
-For craft support, it may lazy-load at most two leaf files from `references/genres/` per chapter, such as an opening template, hook technique, or style module.
+The agent runs each chapter as a single transaction: check `next_required_review`, load minimal context, save `05_reviews/第N章-beat.md`, write `04_chapters/drafts/第N章.md`, run mechanical gates to `05_reviews/第N章-gate.json`, write semantic review to `05_reviews/第N章-review.md`, then save accepted正文 to `04_chapters/final/第N章.md` and update memory.
+For craft support, it loads genre files only for chapters 1-3, new arcs, failed quality gates, or a specific prose problem.
 
 ### 3. Run Mechanical Gates
 
 ```bash
-core/fanqie-plus/scripts/gate_check.py ./my-novel/04_chapters/final/第1章.md \
+core/fanqie-plus/scripts/gate_check.py ./my-novel/04_chapters/drafts/第1章.md \
   --json-out ./my-novel/05_reviews/第1章-gate.json
 ```
 
@@ -139,15 +154,18 @@ The script flags:
 - character count out of range (default 2000-4000 CJK characters, blocking)
 - meta contamination
 - URL/contact/ad/off-platform diversion patterns
+- AI-pattern fingerprints and degree-adverb overuse
 - Markdown artifacts
 - excessive blank lines
 - weak hook signal warning
 
-Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) remain the agent's job.
+Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) are written to `05_reviews/第N章-review.md`. A chapter is not accepted until both mechanical and semantic gates pass.
 
 ### 4. Update Memory After A Passed Chapter
 
-The agent appends a summary to `03_memory/chapter_summaries.md`, bumps `current_chapter` and `current_words` in `novel_state.json`, and adds a row to `03_memory/pacing_ledger.csv` (columns: `chapter,title,pace,quota,hook_type,words,gate_passed,notes`). Only update memory after the chapter passes gates or the user accepts the repaired version.
+The agent appends a summary to `03_memory/chapter_summaries.md`, including an `Outline sync:` line only when the accepted正文 requires future queue/anchor repair. It also bumps `current_chapter` and `current_words` in `novel_state.json`, and adds a row to `03_memory/pacing_ledger.csv` (columns: `chapter,title,pace,quota,hook_type,words,gate_passed,notes`). Only update memory after the chapter passes gates or the user accepts the repaired version.
+
+After a due 10-chapter audit passes, advance `next_required_review` in `novel_state.json` to the next review point, such as `第20章`.
 
 ### 5. Run 10-Chapter Consistency Audit
 
@@ -161,6 +179,7 @@ The audit compares:
 - character, timeline, and foreshadowing files when needed
 
 Write the report to `05_reviews/consistency/chapter-XXX.md`. Blocking conflicts must be repaired before the agent drafts the next chapter. If正文 improved a stale细纲, update the downstream outline and memory instead of forcing正文 backward.
+Routine drift control stays in the existing memory, outline, pacing, and audit files; do not create separate planned-vs-actual ledgers unless the user asks for one.
 
 ### 6. Export Fanqie Text
 

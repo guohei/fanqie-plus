@@ -2,6 +2,20 @@
 
 Use this reference for single-chapter or batch continuation.
 
+## Chapter Transaction
+
+Run each chapter as a file-backed transaction. Do not start the next chapter until the current chapter has passed gates, landed in `04_chapters/final/`, and updated memory.
+
+1. Check `next_required_review` in `03_memory/novel_state.json`. If the next chapter would pass a due 10-chapter or Fanqie checkpoint review, run the review first.
+2. Read the minimal context set below.
+3. Save `05_reviews/第N章-beat.md`.
+4. Save `04_chapters/drafts/第N章.md`.
+5. Run `scripts/gate_check.py` and save `05_reviews/第N章-gate.json`.
+6. Save `05_reviews/第N章-review.md` with semantic gate findings.
+7. Repair blocking findings before continuing.
+8. Only copy or rewrite into `04_chapters/final/第N章.md` after both gates pass.
+9. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+
 ## Context Budget
 
 Default read set before drafting:
@@ -16,7 +30,7 @@ Avoid loading the whole book. Summarize if the context grows.
 
 ## Preflight
 
-Before drafting, state internally or in a brief work note:
+Before drafting, write these fields into `05_reviews/第N章-beat.md`:
 
 - Chapter number and target word count.
 - Pace tier: slow, medium, or fast.
@@ -80,9 +94,11 @@ The hook should connect to the chapter's pressure or payoff, not appear as a det
 
 For multiple chapters:
 
+- Batch generation repeats this transaction for each chapter.
 - Draft in order.
-- Gate and update memory after each chapter.
+- Gate, review, final-save, and update memory after each chapter.
 - Do not assume later chapters can fix a failed current chapter.
+- Do not draft later chapters first and gate them afterward.
 - Keep fast chapters separated by slow/medium buffers unless at a planned climax.
 
 ## Output Discipline

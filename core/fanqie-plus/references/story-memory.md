@@ -34,6 +34,7 @@ Append after each accepted final chapter:
 - Character changes:
 - Foreshadowing:
 - Continuity notes:
+- Outline sync:
 ```
 
 ### `03_memory/pacing_ledger.csv`
@@ -97,6 +98,16 @@ Record facts, not interpretations. Prefer:
 Avoid:
 
 - "陆沉应该会越来越喜欢林晚。"
+
+Use `Outline sync:` only for real plan drift:
+
+- `none` when正文 matches the chapter queue and current anchor.
+- `queue update needed` when正文 is coherent but future `chapter_queue.yaml` should change.
+- `anchor/memory repair needed` when the drift affects runway, pacing quota, timeline, or foreshadowing.
+
+Do not create extra drift ledgers unless the user explicitly asks. Reuse `chapter_summaries.md`, `pacing_ledger.csv`, and the 10-chapter consistency audit.
+
+Advance `next_required_review` only after the due review passes. Example: after the 第10章 consistency audit passes or is repaired, set `next_required_review` to `第20章`. If the audit fails, leave it unchanged until repair is complete.
 
 ## Retrieval Rules
 
