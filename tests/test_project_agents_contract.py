@@ -154,6 +154,15 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("chapter_summaries.md", text)
         self.assertIn("pacing_ledger.csv", text)
 
+    def test_story_memory_uses_lightweight_continuity_guardrails(self) -> None:
+        text = STORY_MEMORY.read_text(encoding="utf-8")
+
+        self.assertIn("- Continuity notes / guardrails:", text)
+        self.assertIn("concrete continuity risks", text)
+        self.assertIn("not permanent bans", text)
+        self.assertNotIn("Forbidden repeats", text)
+        self.assertNotIn("events.json", text)
+
     def test_review_state_advances_after_due_audit(self) -> None:
         story_memory = STORY_MEMORY.read_text(encoding="utf-8")
         consistency_audit = CONSISTENCY_AUDIT.read_text(encoding="utf-8")

@@ -33,7 +33,7 @@ Append after each accepted final chapter:
 - New facts:
 - Character changes:
 - Foreshadowing:
-- Continuity notes:
+- Continuity notes / guardrails:
 - Outline sync:
 ```
 
@@ -106,6 +106,8 @@ Use `Outline sync:` only for real plan drift:
 - `anchor/memory repair needed` when the drift affects runway, pacing quota, timeline, or foreshadowing.
 
 Do not create extra drift ledgers unless the user explicitly asks. Reuse `chapter_summaries.md`, `pacing_ledger.csv`, and the 10-chapter consistency audit.
+
+Use `Continuity notes / guardrails:` for concrete continuity risks that could affect the next chapters. Keep them factual and local. They are not permanent bans: later chapters may override them when there is a clear story reason, and stale guardrails should be revised during memory updates or consistency audits.
 
 Advance `next_required_review` only after the due review passes. Example: after the 第10章 consistency audit passes or is repaired, set `next_required_review` to `第20章`. If the audit fails, leave it unchanged until repair is complete.
 
