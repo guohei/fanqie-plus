@@ -69,7 +69,28 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertNotIn("events promised in the outline or chapter queue but missing from正文", text)
         self.assertNotIn("events written in正文 but not reflected in memory", text)
-        self.assertLessEqual(len(text.splitlines()), 20)
+        self.assertLessEqual(len(text.splitlines()), 32)
+
+    def test_project_agents_contains_chapter_continuation_gate_without_full_pipeline(self) -> None:
+        text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
+        required_snippets = [
+            "Chapter Continuation Gate",
+            "Before starting the next chapter",
+            "05_reviews/第N章-beat.md",
+            "04_chapters/drafts/第N章.md",
+            "05_reviews/第N章-gate.json",
+            "04_chapters/final/第N章.md",
+            "updated `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv`",
+            "For batch writing, repeat this gate per chapter",
+            "Write `05_reviews/第N章-review.md` only when strict review mode is triggered",
+        ]
+
+        for snippet in required_snippets:
+            self.assertIn(snippet, text)
+
+        self.assertNotIn("Chapter function.", text)
+        self.assertNotIn("3-5 beats.", text)
+        self.assertNotIn("Ending hook type and concrete signal", text)
 
     def test_project_agents_keeps_style_and_hook_rules_in_skill_references(self) -> None:
         text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
@@ -189,21 +210,22 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("05_reviews/consistency/chapter-XXX.md", review_stage)
         self.assertIn("references/consistency-audit.md", resource_map)
 
-    def test_continue_stage_is_a_single_chapter_transaction(self) -> None:
+    def test_continue_stage_uses_lean_default_transaction(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
         continue_stage = section(skill, "### 3. Continue the next chapter", "### 4. Repair a chapter")
 
         required_snippets = [
-            "single-chapter transaction",
+            "lean single-chapter transaction",
             "`next_required_review`",
             "05_reviews/第N章-beat.md",
             "04_chapters/drafts/第N章.md",
             "05_reviews/第N章-gate.json",
-            "05_reviews/第N章-review.md",
             "04_chapters/final/第N章.md",
             "03_memory/chapter_summaries.md",
             "03_memory/pacing_ledger.csv",
             "Only then may the next chapter start",
+            "strict review mode",
+            "Write `05_reviews/第N章-review.md` only in strict review mode",
         ]
 
         for snippet in required_snippets:
@@ -211,16 +233,21 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertNotIn("perform semantic checks yourself", continue_stage)
 
-    def test_chapter_pipeline_requires_transaction_artifacts(self) -> None:
+    def test_chapter_pipeline_requires_lean_transaction_and_strict_review_triggers(self) -> None:
         text = CHAPTER_PIPELINE.read_text(encoding="utf-8")
 
         required_snippets = [
-            "Chapter Transaction",
+            "Default Chapter Transaction",
             "Check `next_required_review`",
             "Save `05_reviews/第N章-beat.md`",
             "save `05_reviews/第N章-gate.json`",
-            "Save `05_reviews/第N章-review.md`",
-            "Only copy or rewrite into `04_chapters/final/第N章.md` after both gates pass",
+            "Strict Review Mode",
+            "Write `05_reviews/第N章-review.md` only when strict mode is triggered",
+            "Only copy or rewrite into `04_chapters/final/第N章.md` after mechanical gates pass and any required strict review has passed",
+            "chapters 1-3",
+            "every 10-chapter audit",
+            "8w, 10w, or 15w",
+            "`gate_check.py` fails",
             "Batch generation repeats this transaction for each chapter",
             "Do not draft later chapters first and gate them afterward",
         ]

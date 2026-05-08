@@ -44,19 +44,17 @@ Use when creating or rebuilding the roadmap, volume plan, chapter queue, or mill
 
 Use for "继续写", "写下一章", "今天N章", or any single/batch chapter drafting request.
 
-Treat each chapter as a single-chapter transaction:
+Default continuation is a lean single-chapter transaction:
 
-1. Read `references/chapter-pipeline.md`, `references/story-memory.md`, and `references/quality-gates.md`.
-2. Determine the next chapter number from `03_memory/novel_state.json` or by listing `04_chapters/final/`. Before drafting, check `next_required_review`; if the next chapter would pass a due review, run the stage review first.
-3. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load craft support from `references/genres/` only for chapters 1-3, new arcs, failed quality gates, or a specific prose problem.
-4. Save preflight and beat sheet to `05_reviews/第N章-beat.md`.
-5. Save draft正文 to `04_chapters/drafts/第N章.md`.
-6. Run `scripts/gate_check.py` and save JSON to `05_reviews/第N章-gate.json`.
-7. Write semantic review to `05_reviews/第N章-review.md`; repair before continuing if any blocking gate fails.
-8. After mechanical and semantic gates pass, save accepted正文 to `04_chapters/final/第N章.md`.
-9. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`. Only then may the next chapter start.
+1. Read `references/chapter-pipeline.md`, determine the next chapter from `03_memory/novel_state.json` or `04_chapters/final/`, and check `next_required_review`. If the next chapter would pass a due review, run the stage review first.
+2. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load `story-memory.md`, `quality-gates.md`, `outline-anchor.md`, or `references/genres/` only for uncertainty, failed gates, chapters 1-3, new arcs, checkpoints, or a specific prose problem.
+3. Save a compact chapter card to `05_reviews/第N章-beat.md`, then save draft正文 to `04_chapters/drafts/第N章.md`.
+4. Run `scripts/gate_check.py` and save JSON to `05_reviews/第N章-gate.json`; repair blocking mechanical findings before final.
+5. Save accepted正文 to `04_chapters/final/第N章.md`, then update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`. Only then may the next chapter start.
 
-For batch requests, repeat this transaction in order for each chapter. Do not draft later chapters before the current chapter's gate, review, final, and memory updates are complete.
+Write `05_reviews/第N章-review.md` only in strict review mode: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, gate failure, user dissatisfaction, major plot or continuity changes, or publish/export preparation.
+
+For batch requests, repeat the lean transaction in order for each chapter. Do not draft later chapters before the current chapter's gate, final, and memory updates are complete.
 
 ### 4. Repair a chapter
 

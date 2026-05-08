@@ -138,8 +138,9 @@ When the genre is clear, the agent may enter `core/fanqie-plus/references/genres
 
 ### 2. Continue The Next Chapter
 
-The agent runs each chapter as a single transaction: check `next_required_review`, load minimal context, save `05_reviews/第N章-beat.md`, write `04_chapters/drafts/第N章.md`, run mechanical gates to `05_reviews/第N章-gate.json`, write semantic review to `05_reviews/第N章-review.md`, then save accepted正文 to `04_chapters/final/第N章.md` and update memory.
-For craft support, it loads genre files only for chapters 1-3, new arcs, failed quality gates, or a specific prose problem.
+The agent runs each chapter as a lean transaction: check `next_required_review`, load minimal context, save a compact `05_reviews/第N章-beat.md`, write `04_chapters/drafts/第N章.md`, run mechanical gates to `05_reviews/第N章-gate.json`, repair blocking findings, then save accepted正文 to `04_chapters/final/第N章.md` and update memory.
+Full `05_reviews/第N章-review.md` files are strict-mode artifacts only: chapters 1-3, 10-chapter audits, 8w/10w/15w, volume boundaries, failed gates, user dissatisfaction, major continuity changes, or publish/export preparation.
+For craft support, it loads genre files only for chapters 1-3, new arcs, failed gates, checkpoints, or a specific prose problem.
 
 ### 3. Run Mechanical Gates
 
@@ -159,7 +160,7 @@ The script flags:
 - excessive blank lines
 - weak hook signal warning
 
-Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) are written to `05_reviews/第N章-review.md`. A chapter is not accepted until both mechanical and semantic gates pass.
+Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) still require agent judgment. Write them to `05_reviews/第N章-review.md` only in strict mode; otherwise keep the default path lightweight and let the mechanical gate plus memory update carry the routine chapter transaction.
 
 ### 4. Update Memory After A Passed Chapter
 

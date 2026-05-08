@@ -2,19 +2,33 @@
 
 Use this reference for single-chapter or batch continuation.
 
-## Chapter Transaction
+## Default Chapter Transaction
 
-Run each chapter as a file-backed transaction. Do not start the next chapter until the current chapter has passed gates, landed in `04_chapters/final/`, and updated memory.
+Run each chapter as a lean file-backed transaction. Do not start the next chapter until the current chapter has passed required gates, landed in `04_chapters/final/`, and updated memory.
 
 1. Check `next_required_review` in `03_memory/novel_state.json`. If the next chapter would pass a due 10-chapter or Fanqie checkpoint review, run the review first.
 2. Read the minimal context set below.
 3. Save `05_reviews/第N章-beat.md`.
 4. Save `04_chapters/drafts/第N章.md`.
 5. Run `scripts/gate_check.py` and save `05_reviews/第N章-gate.json`.
-6. Save `05_reviews/第N章-review.md` with semantic gate findings.
-7. Repair blocking findings before continuing.
-8. Only copy or rewrite into `04_chapters/final/第N章.md` after both gates pass.
-9. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+6. Repair blocking mechanical findings before continuing.
+7. Only copy or rewrite into `04_chapters/final/第N章.md` after mechanical gates pass and any required strict review has passed.
+8. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+
+## Strict Review Mode
+
+Write `05_reviews/第N章-review.md` only when strict mode is triggered:
+
+- chapters 1-3
+- every 10-chapter audit
+- 8w, 10w, or 15w checkpoint
+- volume ending or new volume opening
+- `gate_check.py` fails
+- user rejects or questions the chapter quality
+- major plot, character relationship, timeline, ability, or foreshadowing change
+- publish/export preparation
+
+Strict review should identify blocking findings, advisory fixes, pace/quota issues, continuity changes, and the smallest repair path. If strict review finds a blocking issue, repair before final save or before continuing.
 
 ## Context Budget
 
@@ -28,23 +42,24 @@ Default read set before drafting:
 
 Avoid loading the whole book. Summarize if the context grows.
 
-## Preflight
+## Mini Beat
 
-Before drafting, write these fields into `05_reviews/第N章-beat.md`:
+Before drafting, write a compact chapter card into `05_reviews/第N章-beat.md`:
 
 - Chapter number and target word count.
-- Pace tier: slow, medium, or fast.
-- A/B/C quota item, or "none".
-- Hook type and specific ending hook.
+- Chapter function.
+- 3-5 beats.
+- Hard constraints: pace tier, A/B/C quota item or "none", and anything this chapter must not resolve.
 - One emotional target for the reader.
-- Required continuity points from previous chapter.
+- Ending hook type and concrete signal.
+- Expected memory updates, or "none".
 
 ## Beat Sheet First
 
-Write a beat sheet before正文. Save it as a work note or `05_reviews/第N章-beat.md`; never paste it into `04_chapters/final/` or exported正文.
+Write a mini beat before正文. Save it as a work note or `05_reviews/第N章-beat.md`; never paste it into `04_chapters/final/` or exported正文.
 
 ```markdown
-# 第N章 Beat Sheet
+# 第N章 Mini Beat
 
 ## Chapter Function
 [What this chapter must achieve]
@@ -96,7 +111,8 @@ For multiple chapters:
 
 - Batch generation repeats this transaction for each chapter.
 - Draft in order.
-- Gate, review, final-save, and update memory after each chapter.
+- Gate, final-save, and update memory after each chapter.
+- Run strict review only when a trigger is present.
 - Do not assume later chapters can fix a failed current chapter.
 - Do not draft later chapters first and gate them afterward.
 - Keep fast chapters separated by slow/medium buffers unless at a planned climax.
@@ -105,6 +121,6 @@ For multiple chapters:
 
 Save draft正文 in `04_chapters/drafts/第N章.md`.
 Save accepted final正文 in `04_chapters/final/第N章.md`.
-Save reviews in `05_reviews/第N章-gate.json` or `05_reviews/第N章-review.md`.
+Save mechanical gate output in `05_reviews/第N章-gate.json`. Save `05_reviews/第N章-review.md` only for strict review mode.
 
 Default publishable chapter length is 2000-4000 Chinese characters unless the project config sets a different range. Treat length failure as a repair item, not a harmless warning, because recommendation-facing Fanqie chapters need stable update units.

@@ -1,6 +1,6 @@
 # Quality Gates
 
-Use these gates after every chapter. Mechanical checks can be scripted; semantic checks require agent judgment.
+Use gates after every chapter, but keep the default path lightweight. Mechanical checks run every chapter. Full semantic review files are reserved for strict review mode; otherwise apply judgment while deciding whether the chapter can move from draft to final.
 
 ## Blocking Gates
 
@@ -42,9 +42,11 @@ Use `scripts/gate_check.py` for:
 - Missing title.
 - Weak hook keywords as a warning.
 
-## Semantic Review Template
+## Strict Semantic Review
 
-Save semantic review as `05_reviews/第N章-review.md`.
+Save `05_reviews/第N章-review.md` only when strict review mode is triggered: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, `gate_check.py` failure, user dissatisfaction, major continuity changes, or publish/export preparation.
+
+Use this template:
 
 ```markdown
 # 第N章 Quality Gate
