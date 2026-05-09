@@ -9,4 +9,5 @@ Open a new Fanqie long-novel project:
 3. Initialize the project structure.
 4. Create project-root `AGENTS.md` from `assets/project_AGENTS.md`.
 5. Create `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md`.
-6. Draft title and introduction options if the user targets Fanqie release.
+6. Record that future chapter artifacts use three-digit zero-padded file names such as `第001章.md` and `第024章-gate.json`.
+7. Draft title and introduction options if the user targets Fanqie release.

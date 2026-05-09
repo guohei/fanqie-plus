@@ -239,6 +239,42 @@ class FanqieScriptTests(unittest.TestCase):
         self.assertIn("BLOCKED missing 05_reviews/第2章-gate.json", proc.stdout)
         self.assertIn("BLOCKED novel_state.current_chapter is 1, expected 2", proc.stdout)
 
+    def test_doctor_chapter_check_accepts_zero_padded_transaction_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "04_chapters" / "drafts").mkdir(parents=True)
+            (root / "04_chapters" / "final").mkdir(parents=True)
+            (root / "05_reviews").mkdir()
+            (root / "03_memory").mkdir()
+            make_embedded_skill(root)
+            (root / "AGENTS.md").write_text("Use `fanqie-plus` from `.fanqie-plus/`.\n", encoding="utf-8")
+            (root / "05_reviews" / "第024章-beat.md").write_text("# beat\n", encoding="utf-8")
+            (root / "04_chapters" / "drafts" / "第024章.md").write_text("第024章 测试\n", encoding="utf-8")
+            (root / "04_chapters" / "final" / "第024章.md").write_text("第024章 测试\n", encoding="utf-8")
+            (root / "05_reviews" / "第024章-gate.json").write_text(
+                json.dumps({"passed": True, "blocking_findings": []}, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            (root / "03_memory" / "novel_state.json").write_text(
+                json.dumps({"current_chapter": 24, "next_required_review": "第30章"}, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            (root / "03_memory" / "chapter_summaries.md").write_text("## 第024章 测试\n- Summary: done\n", encoding="utf-8")
+            (root / "03_memory" / "pacing_ledger.csv").write_text(
+                "chapter,title,pace,quota,hook_type,words,gate_passed,notes\n24,测试,medium,none,suspense,10,true,\n",
+                encoding="utf-8",
+            )
+
+            proc = subprocess.run(
+                [sys.executable, str(DOCTOR), "--project-root", str(root), "chapter-check", "--chapter", "24"],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+        self.assertEqual(proc.returncode, 0, proc.stdout)
+        self.assertIn("OK chapter-check", proc.stdout)
+
     def test_doctor_project_check_blocks_due_consistency_review(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

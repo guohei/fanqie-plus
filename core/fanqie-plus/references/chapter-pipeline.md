@@ -6,20 +6,22 @@ Use this reference for single-chapter or batch continuation.
 
 Run each chapter as a lean file-backed transaction. Do not start the next chapter until the current chapter has passed required gates, landed in `04_chapters/final/`, and updated memory.
 
+Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit zero-padded chapter number, such as `第001章` or `第024章`. This keeps file browsers and plain lexicographic lists in chapter order. Existing unpadded projects may remain as-is; `fanqie_doctor.py` accepts either style.
+
 1. Check `next_required_review` in `03_memory/novel_state.json`. If the next chapter would pass a due 10-chapter or Fanqie checkpoint review, run the review first.
 2. Read the minimal context set below.
-3. Save `05_reviews/第N章-beat.md`.
-4. Save `04_chapters/drafts/第N章.md`.
-5. Run `scripts/gate_check.py` and save `05_reviews/第N章-gate.json`.
+3. Save a Micro Beat to `05_reviews/第NNN章-beat.md`.
+4. Save `04_chapters/drafts/第NNN章.md`.
+5. Run `scripts/gate_check.py` and save `05_reviews/第NNN章-gate.json`.
 6. Repair blocking mechanical findings before continuing.
-7. Only copy or rewrite into `04_chapters/final/第N章.md` after mechanical gates pass and any required strict review has passed.
-8. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+7. Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed.
+8. Run one Memory Commit after final is accepted.
 9. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available before starting the next chapter.
 10. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the transaction completes.
 
 ## Strict Review Mode
 
-Write `05_reviews/第N章-review.md` only when strict mode is triggered:
+Write `05_reviews/第NNN章-review.md` only when strict mode is triggered:
 
 - chapters 1-3
 - every 10-chapter audit
@@ -44,44 +46,28 @@ Default read set before drafting:
 
 Avoid loading the whole book. Summarize if the context grows.
 
-## Mini Beat
+## Micro Beat
 
-Before drafting, write a compact chapter card into `05_reviews/第N章-beat.md`:
+Before drafting, write a short chapter card into `05_reviews/第NNN章-beat.md`. Keep the default Micro Beat tight:
 
-- Chapter number and target word count.
-- Chapter function.
-- 3-5 beats.
-- Hard constraints: pace tier, A/B/C quota item or "none", and anything this chapter must not resolve.
-- One emotional target for the reader.
-- Ending hook type and concrete signal.
-- Expected memory updates, or "none".
+- Function:
+- Beats: 3-5 bullets.
+- Must not resolve:
+- Ending hook:
+- Expected memory updates:
 
-## Beat Sheet First
+Use a fuller beat only for chapters 1-3, new arcs, checkpoints, failed gates, user dissatisfaction, or major plot/continuity turns. Never paste beat notes into `04_chapters/final/` or exported正文. If the Micro Beat violates anchor quota, fix it before writing正文.
 
-Write a mini beat before正文. Save it as a work note or `05_reviews/第N章-beat.md`; never paste it into `04_chapters/final/` or exported正文.
+## Memory Commit
 
-```markdown
-# 第N章 Mini Beat
+After accepted正文 lands in `04_chapters/final/`, update memory as one post-final operation:
 
-## Chapter Function
-[What this chapter must achieve]
+- append `03_memory/chapter_summaries.md`
+- update `03_memory/novel_state.json`
+- append `03_memory/pacing_ledger.csv`
+- update `01_bible/characters.yaml`, `timeline.yaml`, or `foreshadowing.yaml` only when accepted正文 changes durable facts
 
-## Beats
-1. [Opening pressure]
-2. [Escalation or discovery]
-3. [Choice, clash, or emotional turn]
-4. [Partial payoff]
-5. [Ending hook]
-
-## Constraints
-- Pace: [slow/medium/fast]
-- Quota: [A/B/C/none]
-- Hook type: [crisis/suspense/reversal/opportunity/conflict/reveal]
-- Must not resolve: [...]
-- Memory updates expected: [...]
-```
-
-If the beat sheet violates anchor quota, fix it before writing正文.
+Do not update memory from draft text. If the chapter is repaired before final, run Memory Commit only after the repaired final is accepted.
 
 ## Ending Hook Types
 
@@ -121,9 +107,10 @@ For multiple chapters:
 
 ## Output Discipline
 
-Save draft正文 in `04_chapters/drafts/第N章.md`.
-Save accepted final正文 in `04_chapters/final/第N章.md`.
-Save mechanical gate output in `05_reviews/第N章-gate.json`. Save `05_reviews/第N章-review.md` only for strict review mode.
+Save draft正文 in `04_chapters/drafts/第NNN章.md`.
+Save accepted final正文 in `04_chapters/final/第NNN章.md`.
+Save mechanical gate output in `05_reviews/第NNN章-gate.json`. Save `05_reviews/第NNN章-review.md` only for strict review mode.
+Run Memory Commit once after final acceptance.
 Use `scripts/fanqie_doctor.py` as a final transaction check; it must not replace the writing agent's semantic judgment.
 Use `scripts/git_checkpoint.py` after completed chapter transactions when the workspace may be temporary.
 

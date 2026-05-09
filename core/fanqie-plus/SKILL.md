@@ -32,8 +32,9 @@ Use when the user has an idea, trope, genre, title, or only says they want to wr
 4. Create the directory structure under `Project Layout` with your file tools.
 5. Embed the skill into project-root `.fanqie-plus/` with `scripts/install_project_skill.py --project-root <book>` when available; otherwise copy this skill directory there manually.
 6. Create project-root `AGENTS.md` from `.fanqie-plus/assets/project_AGENTS.md` so future agents entering the book directory use the embedded skill. If `AGENTS.md` already exists, preserve existing project-specific instructions.
-7. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
-8. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
+7. Establish three-digit zero-padded chapter file names for future artifacts: `第001章.md`, `第001章-beat.md`, and `第001章-gate.json`.
+8. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
+9. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
 
 ### 2. Plan the long book
 
@@ -52,13 +53,14 @@ Default continuation is a lean single-chapter transaction:
 
 1. Read `references/chapter-pipeline.md`, determine the next chapter from `03_memory/novel_state.json` or `04_chapters/final/`, and check `next_required_review`. If the next chapter would pass a due review, run the stage review first.
 2. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load `story-memory.md`, `quality-gates.md`, `outline-anchor.md`, or `references/genres/` only for uncertainty, failed gates, chapters 1-3, new arcs, checkpoints, or a specific prose problem.
-3. Save a compact chapter card to `05_reviews/第N章-beat.md`, then save draft正文 to `04_chapters/drafts/第N章.md`.
-4. Run `scripts/gate_check.py` and save JSON to `05_reviews/第N章-gate.json`; repair blocking mechanical findings before final.
-5. Save accepted正文 to `04_chapters/final/第N章.md`, then update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
-6. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available. Only then may the next chapter start.
-7. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the chapter transaction is complete.
+3. Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit zero-padded chapter number, such as `第024章`.
+4. Save a Micro Beat to `05_reviews/第NNN章-beat.md`, then save draft正文 to `04_chapters/drafts/第NNN章.md`.
+5. Run `scripts/gate_check.py` and save JSON to `05_reviews/第NNN章-gate.json`; repair blocking mechanical findings before final.
+6. Save accepted正文 to `04_chapters/final/第NNN章.md`, then run one Memory Commit.
+7. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available. Only then may the next chapter start.
+8. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the chapter transaction is complete.
 
-Write `05_reviews/第N章-review.md` only in strict review mode: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, gate failure, user dissatisfaction, major plot or continuity changes, or publish/export preparation.
+Write `05_reviews/第NNN章-review.md` only in strict review mode: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, gate failure, user dissatisfaction, major plot or continuity changes, or publish/export preparation.
 
 For batch requests, repeat the lean transaction in order for each chapter. Do not draft later chapters before the current chapter's gate, final, and memory updates are complete.
 

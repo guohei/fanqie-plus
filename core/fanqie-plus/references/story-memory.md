@@ -91,6 +91,8 @@ Use information gaps deliberately:
 
 Update memory only after a chapter passes gates or after the user accepts a repaired version.
 
+Treat routine memory work as one Memory Commit: one post-final operation that appends `chapter_summaries.md`, updates `novel_state.json`, appends `pacing_ledger.csv`, and touches bible files only when accepted正文 changes durable facts. Do not split this into separate user-facing steps, and do not update memory from draft text.
+
 Record facts, not interpretations. Prefer:
 
 - "陆沉在第12章知道林晚有系统异常。"

@@ -69,6 +69,19 @@ def _find_chapter_file(root: Path, rel_dir: str, chapter: int) -> Path | None:
     return None
 
 
+def _find_numbered_artifact(root: Path, rel_dir: str, chapter: int, suffix: str, extension: str) -> Path | None:
+    directory = root / rel_dir
+    if not directory.is_dir():
+        return None
+    pattern = re.compile(
+        rf"第\s*0*{chapter}\s*章{re.escape(suffix)}{re.escape(extension)}$"
+    )
+    for path in sorted(directory.glob(f"*{extension}")):
+        if pattern.search(path.name):
+            return path
+    return None
+
+
 def _chapter_numbers(root: Path) -> list[int]:
     final_dir = root / "04_chapters" / "final"
     if not final_dir.is_dir():
@@ -165,9 +178,10 @@ def _consistency_report_exists(root: Path, chapter: int) -> bool:
 
 
 def _check_gate(root: Path, chapter: int, findings: list[Finding]) -> None:
-    gate = root / "05_reviews" / f"第{chapter}章-gate.json"
-    if not gate.is_file():
-        findings.append(Finding("BLOCKED", f"missing {_rel(root, gate)}"))
+    default_gate = root / "05_reviews" / f"第{chapter}章-gate.json"
+    gate = _find_numbered_artifact(root, "05_reviews", chapter, "-gate", ".json")
+    if not gate:
+        findings.append(Finding("BLOCKED", f"missing {_rel(root, default_gate)}"))
         return
     data, err = _read_json(gate)
     if err:
@@ -183,13 +197,13 @@ def _check_gate(root: Path, chapter: int, findings: list[Finding]) -> None:
 def check_chapter(root: Path, chapter: int) -> list[Finding]:
     findings: list[Finding] = []
 
-    exact_paths = [
-        root / "05_reviews" / f"第{chapter}章-beat.md",
-        root / "04_chapters" / "drafts" / f"第{chapter}章.md",
+    required_artifacts = [
+        ("05_reviews", "-beat", ".md", root / "05_reviews" / f"第{chapter}章-beat.md"),
+        ("04_chapters/drafts", "", ".md", root / "04_chapters" / "drafts" / f"第{chapter}章.md"),
     ]
-    for path in exact_paths:
-        if not path.is_file():
-            findings.append(Finding("BLOCKED", f"missing {_rel(root, path)}"))
+    for rel_dir, suffix, extension, default_path in required_artifacts:
+        if not _find_numbered_artifact(root, rel_dir, chapter, suffix, extension):
+            findings.append(Finding("BLOCKED", f"missing {_rel(root, default_path)}"))
 
     if not _find_chapter_file(root, "04_chapters/final", chapter):
         findings.append(Finding("BLOCKED", f"missing 04_chapters/final/第{chapter}章*.md"))

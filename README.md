@@ -154,16 +154,16 @@ When the genre is clear, the agent may enter `.fanqie-plus/references/genres/IND
 
 ### 2. Continue The Next Chapter
 
-The agent runs each chapter as a lean transaction: check `next_required_review`, load minimal context, save a compact `05_reviews/第N章-beat.md`, write `04_chapters/drafts/第N章.md`, run mechanical gates to `05_reviews/第N章-gate.json`, repair blocking findings, then save accepted正文 to `04_chapters/final/第N章.md` and update memory.
-Full `05_reviews/第N章-review.md` files are strict-mode artifacts only: chapters 1-3, 10-chapter audits, 8w/10w/15w, volume boundaries, failed gates, user dissatisfaction, major continuity changes, or publish/export preparation.
+The agent runs each chapter as a lean transaction: check `next_required_review`, load minimal context, save a Micro Beat to `05_reviews/第NNN章-beat.md`, write `04_chapters/drafts/第NNN章.md`, run mechanical gates to `05_reviews/第NNN章-gate.json`, repair blocking findings, then save accepted正文 to `04_chapters/final/第NNN章.md` and run one Memory Commit. `NNN` is the three-digit zero-padded chapter number, such as `001` or `024`.
+Full `05_reviews/第NNN章-review.md` files are strict-mode artifacts only: chapters 1-3, 10-chapter audits, 8w/10w/15w, volume boundaries, failed gates, user dissatisfaction, major continuity changes, or publish/export preparation.
 For craft support, it loads genre files only for chapters 1-3, new arcs, failed gates, checkpoints, or a specific prose problem.
 
 ### 3. Run Mechanical Gates
 
 ```bash
 cd ./my-novel
-.fanqie-plus/scripts/gate_check.py 04_chapters/drafts/第1章.md \
-  --json-out 05_reviews/第1章-gate.json
+.fanqie-plus/scripts/gate_check.py 04_chapters/drafts/第001章.md \
+  --json-out 05_reviews/第001章-gate.json
 ```
 
 The script flags:
@@ -177,11 +177,11 @@ The script flags:
 - excessive blank lines
 - weak hook signal warning
 
-Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) still require agent judgment. Write them to `05_reviews/第N章-review.md` only in strict mode; otherwise keep the default path lightweight and let the mechanical gate plus memory update carry the routine chapter transaction.
+Semantic checks (pacing, emotional pull, continuity, style drift, hidden acceleration, platform risk) still require agent judgment. Write them to `05_reviews/第NNN章-review.md` only in strict mode; otherwise keep the default path lightweight and let the Micro Beat, mechanical gate, and Memory Commit carry the routine chapter transaction.
 
 ### 4. Update Memory After A Passed Chapter
 
-The agent appends a summary to `03_memory/chapter_summaries.md`, including an `Outline sync:` line only when the accepted正文 requires future queue/anchor repair. It also bumps `current_chapter` and `current_words` in `novel_state.json`, and adds a row to `03_memory/pacing_ledger.csv` (columns: `chapter,title,pace,quota,hook_type,words,gate_passed,notes`). Only update memory after the chapter passes gates or the user accepts the repaired version.
+Memory Commit is one post-final operation: append a summary to `03_memory/chapter_summaries.md`, including an `Outline sync:` line only when the accepted正文 requires future queue/anchor repair; bump `current_chapter` and `current_words` in `novel_state.json`; and add a row to `03_memory/pacing_ledger.csv` (columns: `chapter,title,pace,quota,hook_type,words,gate_passed,notes`). Only update memory after the chapter passes gates or the user accepts the repaired version.
 
 After a due 10-chapter audit passes, advance `next_required_review` in `novel_state.json` to the next review point, such as `第20章`.
 

@@ -17,7 +17,9 @@ CROSS_REVIEW = SKILL_ROOT / "references" / "cross-review.md"
 READER_REVIEW = SKILL_ROOT / "references" / "reader-review.md"
 README = ROOT / "README.md"
 GEMINI_NEW = ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "new.toml"
+GEMINI_NEXT = ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "next.toml"
 WINDSURF_NEW = ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-new.md"
+WINDSURF_NEXT = ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-next.md"
 
 
 def section(text: str, heading: str, next_heading: str) -> str:
@@ -41,6 +43,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("assets/project_AGENTS.md", open_book)
         self.assertIn(".fanqie-plus", open_book)
         self.assertIn("scripts/install_project_skill.py", open_book)
+        self.assertIn("three-digit zero-padded chapter file names", open_book)
+        self.assertIn("第001章", open_book)
         self.assertIn("AGENTS.md", layout)
         self.assertIn(".fanqie-plus/", layout)
 
@@ -85,13 +89,14 @@ class ProjectAgentsContractTests(unittest.TestCase):
         required_snippets = [
             "Chapter Continuation Gate",
             "Before starting the next chapter",
-            "05_reviews/第N章-beat.md",
-            "04_chapters/drafts/第N章.md",
-            "05_reviews/第N章-gate.json",
-            "04_chapters/final/第N章.md",
-            "updated `03_memory/chapter_summaries.md`, `novel_state.json`, and `pacing_ledger.csv`",
+            "NNN is the three-digit zero-padded chapter number",
+            "05_reviews/第NNN章-beat.md",
+            "04_chapters/drafts/第NNN章.md",
+            "05_reviews/第NNN章-gate.json",
+            "04_chapters/final/第NNN章.md",
+            "one post-final Memory Commit",
             "For batch writing, repeat this gate per chapter",
-            "Write `05_reviews/第N章-review.md` only when strict review mode is triggered",
+            "Write `05_reviews/第NNN章-review.md` only when strict review mode is triggered",
         ]
 
         for snippet in required_snippets:
@@ -178,6 +183,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
     def test_story_memory_tracks_outline_sync_without_new_drift_artifact(self) -> None:
         text = STORY_MEMORY.read_text(encoding="utf-8")
 
+        self.assertIn("Memory Commit", text)
+        self.assertIn("one post-final operation", text)
         self.assertIn("- Outline sync:", text)
         self.assertIn("Use `Outline sync:` only for real plan drift", text)
         self.assertIn("Do not create extra drift ledgers", text)
@@ -252,17 +259,18 @@ class ProjectAgentsContractTests(unittest.TestCase):
         required_snippets = [
             "lean single-chapter transaction",
             "`next_required_review`",
-            "05_reviews/第N章-beat.md",
-            "04_chapters/drafts/第N章.md",
-            "05_reviews/第N章-gate.json",
-            "04_chapters/final/第N章.md",
-            "03_memory/chapter_summaries.md",
-            "03_memory/pacing_ledger.csv",
+            "Use `第NNN章` file names",
+            "Micro Beat",
+            "05_reviews/第NNN章-beat.md",
+            "04_chapters/drafts/第NNN章.md",
+            "05_reviews/第NNN章-gate.json",
+            "04_chapters/final/第NNN章.md",
+            "Memory Commit",
             "scripts/fanqie_doctor.py",
             "scripts/git_checkpoint.py",
             "Only then may the next chapter start",
             "strict review mode",
-            "Write `05_reviews/第N章-review.md` only in strict review mode",
+            "Write `05_reviews/第NNN章-review.md` only in strict review mode",
         ]
 
         for snippet in required_snippets:
@@ -276,11 +284,14 @@ class ProjectAgentsContractTests(unittest.TestCase):
         required_snippets = [
             "Default Chapter Transaction",
             "Check `next_required_review`",
-            "Save `05_reviews/第N章-beat.md`",
-            "save `05_reviews/第N章-gate.json`",
+            "Use `第NNN章` file names",
+            "Micro Beat",
+            "Save a Micro Beat to `05_reviews/第NNN章-beat.md`",
+            "save `05_reviews/第NNN章-gate.json`",
+            "Memory Commit",
             "Strict Review Mode",
-            "Write `05_reviews/第N章-review.md` only when strict mode is triggered",
-            "Only copy or rewrite into `04_chapters/final/第N章.md` after mechanical gates pass and any required strict review has passed",
+            "Write `05_reviews/第NNN章-review.md` only when strict mode is triggered",
+            "Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed",
             "chapters 1-3",
             "every 10-chapter audit",
             "8w, 10w, or 15w",
@@ -294,10 +305,20 @@ class ProjectAgentsContractTests(unittest.TestCase):
         for snippet in required_snippets:
             self.assertIn(snippet, text)
 
+        self.assertNotIn("## Beat Sheet First", text)
+        self.assertNotIn("Chapter Function\n[What this chapter must achieve]", text)
+
     def test_new_project_adapters_also_create_agents_file(self) -> None:
         for path in [GEMINI_NEW, WINDSURF_NEW]:
             text = path.read_text(encoding="utf-8")
             self.assertIn("AGENTS.md", text, f"{path} should mention project AGENTS.md")
+
+    def test_next_adapters_use_micro_beat_and_memory_commit(self) -> None:
+        for path in [GEMINI_NEXT, WINDSURF_NEXT]:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("Micro Beat", text, f"{path} should use the lightweight beat path")
+            self.assertIn("Memory Commit", text, f"{path} should use the post-final memory transaction")
+            self.assertNotIn("create a beat sheet", text.lower(), f"{path} should not ask for a full beat sheet by default")
 
 
 if __name__ == "__main__":
