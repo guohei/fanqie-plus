@@ -35,6 +35,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from cross_agent_reviewer import parse_review_report
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKDIR_NAME = ".audit_workdir"
 
@@ -240,6 +242,23 @@ def run_cross_review(args: argparse.Namespace, fanqie_root: Path, workdir: Path)
 
 
 def run_cross_batch(args: argparse.Namespace, fanqie_root: Path, workdir: Path) -> int:
+    try:
+        start = int(args.chapter_start)
+        end = int(args.chapter_end)
+    except ValueError:
+        print(
+            f"错误：--chapter-start/--chapter-end 必须是整数（收到 {args.chapter_start!r}, {args.chapter_end!r}）",
+            file=sys.stderr,
+        )
+        return 2
+
+    output_path = args.output or str(
+        workdir
+        / "04_editing"
+        / "cross_review"
+        / f"batch_ch{start:03d}-{end:03d}_review_prompt.md"
+    )
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "cross_agent_reviewer.py"),
@@ -247,14 +266,59 @@ def run_cross_batch(args: argparse.Namespace, fanqie_root: Path, workdir: Path) 
         "--project-root", str(workdir),
         "--chapter-start", str(args.chapter_start),
         "--chapter-end", str(args.chapter_end),
+        "--output", output_path,
     ]
-    if args.output:
-        cmd += ["--output", args.output]
     rc = subprocess.call(cmd)
     exported = export_artifacts(workdir, fanqie_root, "cross")
     for path in exported:
         print(f"[fanqie_audit] exported → {path}", file=sys.stderr)
     return rc
+
+
+def _resolve_report_file(fanqie_root: Path, report_file: str) -> Path:
+    raw = Path(report_file).expanduser()
+    candidates = [raw] if raw.is_absolute() else [
+        fanqie_root / raw,
+        fanqie_root / "05_reviews" / "cross" / raw,
+        raw,
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.resolve()
+    searched = ", ".join(str(p) for p in candidates)
+    raise FileNotFoundError(f"未找到外部审稿报告：{report_file}（搜索：{searched}）")
+
+
+def _default_issues_path(fanqie_root: Path, report_file: Path) -> Path:
+    stem = report_file.stem
+    for suffix in ("_review_report", "_report"):
+        if stem.endswith(suffix):
+            stem = stem[: -len(suffix)]
+            break
+    return fanqie_root / "05_reviews" / "cross" / f"{stem}_issues.json"
+
+
+def run_cross_parse(args: argparse.Namespace, fanqie_root: Path) -> int:
+    try:
+        report_file = _resolve_report_file(fanqie_root, args.report_file)
+    except FileNotFoundError as e:
+        print(f"错误：{e}", file=sys.stderr)
+        return 2
+
+    result = parse_review_report(report_file.read_text(encoding="utf-8"))
+    output = Path(args.output).expanduser() if args.output else _default_issues_path(fanqie_root, report_file)
+    if not output.is_absolute():
+        output = fanqie_root / output
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(
+        f"[fanqie_audit] parsed external review → {output} "
+        f"(P0={result['p0_count']}, P1={result['p1_count']}, P2={result['p2_count']})",
+        file=sys.stderr,
+    )
+    return 1 if result["p0_count"] > 0 else 0
 
 
 def main() -> int:
@@ -281,11 +345,18 @@ def main() -> int:
     cb.add_argument("--chapter-end", required=True)
     cb.add_argument("--output", default=None)
 
+    cp = sub.add_parser("cross-parse", help="解析外部审稿报告到 05_reviews/cross/*_issues.json")
+    cp.add_argument("--report-file", required=True, help="外部审稿报告路径；可传绝对路径、项目相对路径，或 05_reviews/cross/ 下的文件名。")
+    cp.add_argument("--output", default=None, help="覆盖默认 issues JSON 输出路径。")
+
     args = ap.parse_args()
     fanqie_root = Path(args.project_root).expanduser().resolve()
     if not fanqie_root.is_dir():
         print(f"错误：项目目录不存在 - {fanqie_root}", file=sys.stderr)
         return 2
+
+    if args.cmd == "cross-parse":
+        return run_cross_parse(args, fanqie_root)
 
     workdir = build_workdir(fanqie_root)
     print(f"[fanqie_audit] workdir → {workdir}", file=sys.stderr)

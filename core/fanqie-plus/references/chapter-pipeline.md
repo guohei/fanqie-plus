@@ -14,6 +14,8 @@ Run each chapter as a lean file-backed transaction. Do not start the next chapte
 6. Repair blocking mechanical findings before continuing.
 7. Only copy or rewrite into `04_chapters/final/第N章.md` after mechanical gates pass and any required strict review has passed.
 8. Update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+9. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available before starting the next chapter.
+10. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the transaction completes.
 
 ## Strict Review Mode
 
@@ -122,5 +124,7 @@ For multiple chapters:
 Save draft正文 in `04_chapters/drafts/第N章.md`.
 Save accepted final正文 in `04_chapters/final/第N章.md`.
 Save mechanical gate output in `05_reviews/第N章-gate.json`. Save `05_reviews/第N章-review.md` only for strict review mode.
+Use `scripts/fanqie_doctor.py` as a final transaction check; it must not replace the writing agent's semantic judgment.
+Use `scripts/git_checkpoint.py` after completed chapter transactions when the workspace may be temporary.
 
 Default publishable chapter length is 2000-4000 Chinese characters unless the project config sets a different range. Treat length failure as a repair item, not a harmless warning, because recommendation-facing Fanqie chapters need stable update units.

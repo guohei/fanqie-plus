@@ -43,7 +43,7 @@ class IntegratedEnhancementTests(unittest.TestCase):
                     missing.append((index, link))
         self.assertEqual(missing, [])
 
-    def test_fanqie_audit_exports_reader_and_cross_review_artifacts(self) -> None:
+    def test_fanqie_audit_exports_cross_review_and_keeps_reader_diagnostic_compatibility(self) -> None:
         self.assertTrue(AUDIT.is_file(), "fanqie_audit.py should be installed")
         self.assertTrue(os.access(AUDIT, os.X_OK), "fanqie_audit.py should be executable")
 
@@ -86,16 +86,82 @@ class IntegratedEnhancementTests(unittest.TestCase):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            cross_batch = subprocess.run(
+                [
+                    sys.executable,
+                    str(AUDIT),
+                    "--project-root",
+                    str(root),
+                    "cross-batch",
+                    "--chapter-start",
+                    "1",
+                    "--chapter-end",
+                    "1",
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
             reader_report = root / "05_reviews" / "reader" / "gate_artifacts" / "ch001" / "reader_report.md"
             cross_prompt = root / "05_reviews" / "cross" / "cross_review" / "ch001_review_prompt.md"
+            cross_batch_prompt = root / "05_reviews" / "cross" / "cross_review" / "batch_ch001-001_review_prompt.md"
             reader_report_exists = reader_report.is_file()
             cross_prompt_exists = cross_prompt.is_file()
+            cross_batch_prompt_exists = cross_batch_prompt.is_file()
 
         self.assertEqual(reader.returncode, 0, reader.stderr)
         self.assertEqual(cross.returncode, 0, cross.stderr)
+        self.assertEqual(cross_batch.returncode, 0, cross_batch.stderr)
         self.assertTrue(reader_report_exists)
         self.assertTrue(cross_prompt_exists)
+        self.assertTrue(cross_batch_prompt_exists)
+
+    def test_fanqie_audit_parses_external_review_into_fanqie_reviews(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "05_reviews" / "cross").mkdir(parents=True)
+            report = root / "05_reviews" / "cross" / "ch001_review_report.md"
+            report.write_text(
+                "\n".join(
+                    [
+                        "# 第 1 章 · 外部审核报告",
+                        "",
+                        "| # | 严重度 | 位置 | 类型 | 问题描述 | 修复建议 |",
+                        "|---|:------:|------|------|---------|---------|",
+                        "| 1 | P0 | 第3段 | 时间线 | 主角上午死亡下午出现 | 改成昏迷或删除下午出场 |",
+                        "| 2 | P2 | 第9段 | AI味 | 情绪总结偏多 | 改成动作细节 |",
+                        "",
+                        "- 整体评分：60/100",
+                        "- 建议：□修复后通过",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            parsed = subprocess.run(
+                [
+                    sys.executable,
+                    str(AUDIT),
+                    "--project-root",
+                    str(root),
+                    "cross-parse",
+                    "--report-file",
+                    "ch001_review_report.md",
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            issues = root / "05_reviews" / "cross" / "ch001_issues.json"
+            issues_exists = issues.is_file()
+            issues_text = issues.read_text(encoding="utf-8") if issues_exists else ""
+
+        self.assertEqual(parsed.returncode, 1, parsed.stderr)
+        self.assertTrue(issues_exists)
+        self.assertIn('"p0_count": 1', issues_text)
+        self.assertIn("主角上午死亡下午出现", issues_text)
 
 
 if __name__ == "__main__":

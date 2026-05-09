@@ -10,12 +10,15 @@ Build and maintain a long-form Chinese web novel optimized for Fanqie-style mobi
 ## Operating Contract
 
 - Treat every novel as a file-backed project, not a one-off chat draft.
+- Prefer project-embedded `.fanqie-plus/` when it exists. Global skill installation is only a fallback.
 - Keep正文 and meta separate. Never place analysis, TODOs, gate notes, bracketed instructions, or author comments inside chapter正文.
 - Load the smallest useful context: project state, current anchor, chapter brief, relevant characters, last chapter, and selected memory snippets.
 - Do not advance to the next chapter while the current chapter gate fails. Repair first.
 - Keep routine drift control inside existing outline, memory, pacing, and 10-chapter audit files. Do not add new tracking artifacts unless the user explicitly asks.
 - Put craft details in project config or references, not in project-root `AGENTS.md`.
 - Use scripts for deterministic checks and exports; use agent judgment for semantic quality.
+- In ephemeral or cloud workspaces, commit and push completed chapters, reviews, repairs, exports, or outline changes with `scripts/git_checkpoint.py` or embedded `.fanqie-plus/scripts/git_checkpoint.py`. A local commit without a remote is not enough.
+- Before long work or handoff, run `scripts/fanqie_doctor.py --project-root . project-check --require-git-remote` when available to verify embedded skill, workflow files, and remote checkpoint readiness. For local experiments, plain `project-check` warns about missing Git instead of blocking.
 
 ## Workflow
 
@@ -27,9 +30,10 @@ Use when the user has an idea, trope, genre, title, or only says they want to wr
 2. Confirm or infer the five seed fields: target reader, style, forbidden zones, automation level, and target scale.
 3. Identify the dominant genre. If the genre is clear, read `references/genres/INDEX.md`, then `references/genres/INDEX-genre-frameworks.md`, then load only the matching genre subfile. Do not read the whole `genres/` tree.
 4. Create the directory structure under `Project Layout` with your file tools.
-5. Create project-root `AGENTS.md` from `assets/project_AGENTS.md` so future agents entering the book directory are explicitly told to use this skill.
-6. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
-7. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
+5. Embed the skill into project-root `.fanqie-plus/` with `scripts/install_project_skill.py --project-root <book>` when available; otherwise copy this skill directory there manually.
+6. Create project-root `AGENTS.md` from `.fanqie-plus/assets/project_AGENTS.md` so future agents entering the book directory use the embedded skill. If `AGENTS.md` already exists, preserve existing project-specific instructions.
+7. Produce `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md` based on the user's actual idea, plus the selected genre subfile when used, not generic templates.
+8. Draft 3-5 title/introduction options if the project is intended for Fanqie release.
 
 ### 2. Plan the long book
 
@@ -50,7 +54,9 @@ Default continuation is a lean single-chapter transaction:
 2. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load `story-memory.md`, `quality-gates.md`, `outline-anchor.md`, or `references/genres/` only for uncertainty, failed gates, chapters 1-3, new arcs, checkpoints, or a specific prose problem.
 3. Save a compact chapter card to `05_reviews/第N章-beat.md`, then save draft正文 to `04_chapters/drafts/第N章.md`.
 4. Run `scripts/gate_check.py` and save JSON to `05_reviews/第N章-gate.json`; repair blocking mechanical findings before final.
-5. Save accepted正文 to `04_chapters/final/第N章.md`, then update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`. Only then may the next chapter start.
+5. Save accepted正文 to `04_chapters/final/第N章.md`, then update `03_memory/chapter_summaries.md`, `03_memory/novel_state.json`, and `03_memory/pacing_ledger.csv`.
+6. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available. Only then may the next chapter start.
+7. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the chapter transaction is complete.
 
 Write `05_reviews/第N章-review.md` only in strict review mode: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, gate failure, user dissatisfaction, major plot or continuity changes, or publish/export preparation.
 
@@ -72,9 +78,9 @@ Use every 10 chapters and at Fanqie checkpoints.
 1. Read `references/fanqie-platform.md` and `references/quality-gates.md`.
 2. At every 10-chapter review, read `references/consistency-audit.md` and write the consistency report to `05_reviews/consistency/chapter-XXX.md` before continuing.
 3. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
-4. Use `references/reader-review.md` only for Fanqie checkpoints, 10-chapter reviews where quality is uncertain, or direct reader-style feedback. Its output is advisory under `05_reviews/reader/`.
-5. Use `references/cross-review.md` at 8w/10w/15w, volume endings, or persistent review disagreement. Parse saved external reports with `scripts/cross_agent_reviewer.py parse`.
-6. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat consistency-audit blocking conflicts and cross-review P0 findings as blocking before continuing.
+4. Use `references/cross-review.md` for 8w/10w/15w, volume endings, major repair decisions, persistent quality doubts, or user-requested independent review. The reviewer must be a different model/session. Parse saved external reports with `scripts/fanqie_audit.py cross-parse`.
+5. Use `references/reader-review.md` only as an optional heuristic diagnostic when chapter hook, pace, or AI-pattern risk is uncertain and no external review is warranted. It is not a default 10-chapter or checkpoint gate.
+6. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat consistency-audit blocking conflicts and cross-review P0 findings as blocking before continuing. Treat reader-report findings as hints, never as blocking by themselves.
 
 ### 6. Export to Fanqie
 
@@ -91,6 +97,7 @@ Use this layout unless an existing project already has a clear structure.
 ```text
 book/
 ├── AGENTS.md
+├── .fanqie-plus/
 ├── 00_config/
 │   ├── idea_seed.md
 │   ├── target_profile.md
@@ -129,17 +136,20 @@ book/
 - `references/export-fanqie.md`: platform plain-text formatting.
 - `references/consistency-audit.md`: 10-chapter outline/memory/正文 drift review and repair rules.
 - `references/genres/`: genre, hook, opening, and style craft library. Always enter through `genres/INDEX.md` and load only selected leaf files.
-- `references/reader-review.md`: advisory reader simulation protocol for 10-chapter and Fanqie checkpoint reviews.
-- `references/cross-review.md`: cross-agent review protocol for volume endings and commercial checkpoints.
+- `references/cross-review.md`: external AI review usage doc for checkpoints, volume endings, and independent review.
+- `references/reader-review.md`: optional heuristic reader simulation diagnostic; not part of the default review path.
 - `assets/project_AGENTS.md`: template for project-root `AGENTS.md`, created during book setup.
 
 ## Scripts
 
 - `scripts/gate_check.py`: run mechanical chapter checks (URL/contact/meta contamination, blocking character count, hook signal) and optionally write JSON.
+- `scripts/install_project_skill.py`: embed or upgrade fanqie-plus under a book project's `.fanqie-plus/`, write `AGENTS.md`, and update `.gitignore`.
+- `scripts/git_checkpoint.py`: commit and push project changes after completed chapters, reviews, repairs, exports, or outline changes.
+- `scripts/fanqie_doctor.py`: check project/chapter workflow completeness and optional Git remote readiness. It reads artifacts only and returns nonzero when a chapter transaction, due review, or required checkpoint prerequisite is incomplete.
 - `scripts/export_fanqie.py`: gate final chapters, then convert Markdown/text into Fanqie-ready `.txt`.
-- `scripts/fanqie_audit.py`: adapt fanqie-plus project layout to advisory reader/cross-review scripts and export reports back to `05_reviews/`.
-- `scripts/reader_simulator.py`: heuristic reader-perspective scoring. Advisory only; use through `fanqie_audit.py` for fanqie-plus projects.
-- `scripts/cross_agent_reviewer.py`: generate prompts for a separate LLM and parse P0/P1/P2 issue reports. Advisory review layer, not a self-review substitute.
+- `scripts/fanqie_audit.py`: adapt fanqie-plus project layout to optional reader diagnostics, cross-review prompt export, and external report parsing.
+- `scripts/cross_agent_reviewer.py`: generate prompts for a separate LLM and parse P0/P1/P2 issue reports. Primary external review layer, not a self-review substitute.
+- `scripts/reader_simulator.py`: optional heuristic reader-perspective scoring. Use only through `fanqie_audit.py` when a quick diagnostic is worth the extra artifact.
 
 Scripts are reserved for deterministic pattern matching and text transformation. Project setup, chapter discovery, and memory updates are handled directly by the agent with its file tools — see the workflow steps above.
 

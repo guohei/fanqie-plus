@@ -1,14 +1,16 @@
-# 读者模拟审稿（advisory gate）
+# 读者模拟诊断（optional heuristic）
 
-读者模拟脚本 `scripts/reader_simulator.py` 来源于 novelist-skill v1.2.0，用于在每 10 章 / 番茄节点（首3、8w、10w、15w）跑一次「四画像 × 六维度」的读者视角评分，输出可读的修订建议清单。
+读者模拟脚本 `scripts/reader_simulator.py` 来源于 novelist-skill v1.2.0，用于快速生成一个启发式 `reader_report.md`。它检查章尾钩子、段落节奏、对话比例、AI 模板句、反转词和伏笔关键词。
 
-它是 **advisory** 级别（不阻塞 Step 3 主流程），用于 Step 5「Review a stage」。
+它不是默认审稿流程，也不是真实读者反馈。优先级低于 `gate_check.py`、10 章一致性审查和 `cross-review.md` 的外部 AI 审稿。
 
 ## 何时使用
 
-- 每 10 章的常规复盘
-- Fanqie 节点：黄金三章末、8w 字、10w 字、15w 字
-- 当人工读者反馈"看起来 AI 味重 / 节奏拖 / 没啥追读欲"，但 `gate_check.py` 全部 PASS
+- 用户明确想要一个快速形式诊断
+- 章尾钩子、节奏、对话比例或 AI 模板句风险不确定
+- `gate_check.py` 通过，但人工或外部反馈仍觉得"AI 味重 / 节奏拖 / 没追读欲"
+
+不要在每 10 章、8w/10w/15w、卷末默认运行它。那些节点优先做一致性审查和必要的外部 AI 审稿。
 
 ## 六个评分子项与权重
 
@@ -25,7 +27,7 @@
 
 ## 如何调用
 
-novelist-skill 原生 `reader_simulator.py` 假定 novelist 项目布局（`02-写作计划.json` / `03_manuscript/` / `04_editing/`）。在 fanqie-plus 项目中**通过 `scripts/fanqie_audit.py` 适配层调用**——它会临时构造 novelist 期望的目录形状，跑完后把产物拷贝到 `05_reviews/reader/`。
+novelist-skill 原生 `reader_simulator.py` 假定 novelist 项目布局（`02-写作计划.json` / `03_manuscript/` / `04_editing/`）。在 fanqie-plus 项目中通过 `scripts/fanqie_audit.py` 适配层调用。它会临时构造 novelist 期望的目录形状，跑完后把产物拷贝到 `05_reviews/reader/`。
 
 启发式评分模式（默认，零依赖）：
 
@@ -50,7 +52,7 @@ python <skill>/scripts/fanqie_audit.py --project-root . reader \
 
 退出码：`0` 通过 / `1` 未达阈值 / `2` 输入错误。
 
-可选配置文件 `00_config/audit_config.json`（影响阈值与画像）：
+可选配置文件 `00_config/audit_config.json`：
 
 ```json
 {
@@ -62,11 +64,13 @@ python <skill>/scripts/fanqie_audit.py --project-root . reader \
 ## 与 fanqie-plus quality-gates 的关系
 
 - `scripts/gate_check.py`：**blocking** 单章门禁，每章必跑（机械模式）。
-- `scripts/reader_simulator.py`：**advisory**，节点 Review 跑（语义模式）。
-- 两者结果合并到 `05_reviews/`，由 Step 5 的 stage review 汇总成"必修"与"可缓"。
+- `references/consistency-audit.md`：**blocking when conflict exists**，每 10 章和关键漂移风险时跑。
+- `references/cross-review.md`：关键节点外部 AI 审稿，P0 阻塞继续写。
+- `scripts/reader_simulator.py`：**optional heuristic**，只给提示，不单独阻塞继续写。
 
 ## 不要做的事
 
 - 不要把读者模拟塞进 Step 3 的单章流程，那会拖慢日更节奏。
-- 不要因为读者模拟单子项低分就立刻重写——先看 `gate_check.py` 是否也红，机械级问题优先于审美级问题。
+- 不要把它当 10 章复盘、商业节点、卷末审稿的默认步骤。
+- 不要因为读者模拟单子项低分就立刻重写。先看 `gate_check.py`、一致性审查、外部审稿或用户反馈是否也指向同一问题。
 - 不要把审稿报告内容塞进章节正文。

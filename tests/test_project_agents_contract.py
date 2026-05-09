@@ -13,6 +13,9 @@ CONSISTENCY_AUDIT = SKILL_ROOT / "references" / "consistency-audit.md"
 QUALITY_GATES = SKILL_ROOT / "references" / "quality-gates.md"
 STORY_MEMORY = SKILL_ROOT / "references" / "story-memory.md"
 CHAPTER_PIPELINE = SKILL_ROOT / "references" / "chapter-pipeline.md"
+CROSS_REVIEW = SKILL_ROOT / "references" / "cross-review.md"
+READER_REVIEW = SKILL_ROOT / "references" / "reader-review.md"
+README = ROOT / "README.md"
 GEMINI_NEW = ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "new.toml"
 WINDSURF_NEW = ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-new.md"
 
@@ -36,16 +39,22 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertIn("AGENTS.md", open_book)
         self.assertIn("assets/project_AGENTS.md", open_book)
+        self.assertIn(".fanqie-plus", open_book)
+        self.assertIn("scripts/install_project_skill.py", open_book)
         self.assertIn("AGENTS.md", layout)
+        self.assertIn(".fanqie-plus/", layout)
 
     def test_project_agents_template_anchors_future_agents_to_fanqie_plus(self) -> None:
         self.assertTrue(PROJECT_AGENTS_TEMPLATE.is_file(), "missing project AGENTS.md template")
 
         text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
         required_snippets = [
-            "Use `fanqie-plus`",
+            ".fanqie-plus/SKILL.md",
             "Do not continue to the next chapter",
-            "scripts/gate_check.py",
+            ".fanqie-plus/scripts/gate_check.py",
+            ".fanqie-plus/scripts/fanqie_doctor.py --project-root . project-check --require-git-remote",
+            ".fanqie-plus/scripts/fanqie_doctor.py",
+            ".fanqie-plus/scripts/git_checkpoint.py",
             "04_chapters/final/",
             "Keep正文 and meta separate",
             "AGENTS.md",
@@ -60,7 +69,7 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "10-Chapter Consistency Audit",
             "After every 10 accepted final chapters",
             "do not continue to the next chapter",
-            "references/consistency-audit.md",
+            ".fanqie-plus/references/consistency-audit.md",
             "05_reviews/consistency/chapter-XXX.md",
         ]
 
@@ -105,7 +114,7 @@ class ProjectAgentsContractTests(unittest.TestCase):
         for snippet in forbidden_snippets:
             self.assertNotIn(snippet, text)
 
-        self.assertIn("references/quality-gates.md", text)
+        self.assertIn(".fanqie-plus/references/quality-gates.md", text)
 
     def test_project_agents_keeps_platform_and_pacing_details_in_references(self) -> None:
         text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
@@ -122,8 +131,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
         for snippet in forbidden_snippets:
             self.assertNotIn(snippet, text)
 
-        self.assertIn("references/quality-gates.md", text)
-        self.assertIn("references/outline-anchor.md", text)
+        self.assertIn(".fanqie-plus/references/quality-gates.md", text)
+        self.assertIn(".fanqie-plus/references/outline-anchor.md", text)
 
     def test_project_agents_does_not_duplicate_reference_workflows(self) -> None:
         text = PROJECT_AGENTS_TEMPLATE.read_text(encoding="utf-8")
@@ -139,10 +148,10 @@ class ProjectAgentsContractTests(unittest.TestCase):
         for snippet in forbidden_snippets:
             self.assertNotIn(snippet, text)
 
-        self.assertIn("references/chapter-pipeline.md", text)
-        self.assertIn("references/story-memory.md", text)
-        self.assertIn("references/export-fanqie.md", text)
-        self.assertIn("references/platform-compliance.md", text)
+        self.assertIn(".fanqie-plus/references/chapter-pipeline.md", text)
+        self.assertIn(".fanqie-plus/references/story-memory.md", text)
+        self.assertIn(".fanqie-plus/references/export-fanqie.md", text)
+        self.assertIn(".fanqie-plus/references/platform-compliance.md", text)
 
     def test_consistency_audit_reference_defines_full_review_contract(self) -> None:
         self.assertTrue(CONSISTENCY_AUDIT.is_file(), "missing consistency audit reference")
@@ -210,6 +219,32 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("05_reviews/consistency/chapter-XXX.md", review_stage)
         self.assertIn("references/consistency-audit.md", resource_map)
 
+    def test_reader_report_is_optional_and_cross_review_is_primary_external_review(self) -> None:
+        skill = SKILL.read_text(encoding="utf-8")
+        cross_review = CROSS_REVIEW.read_text(encoding="utf-8")
+        reader_review = READER_REVIEW.read_text(encoding="utf-8")
+        readme = README.read_text(encoding="utf-8")
+
+        self.assertIn("major repair decisions", skill)
+        self.assertIn("It is not a default 10-chapter or checkpoint gate", skill)
+        self.assertIn("Treat reader-report findings as hints", skill)
+        self.assertIn("scripts/fanqie_audit.py cross-parse", skill)
+
+        self.assertIn("外部 AI 审稿使用文档", cross_review)
+        self.assertIn("fanqie_audit.py --project-root . cross-parse", cross_review)
+        self.assertIn("--report-file", cross_review)
+        self.assertNotIn("--report 05_reviews", cross_review)
+        self.assertNotIn("cross_agent_reviewer.py parse", cross_review)
+        self.assertIn("不要因为 `reader_report` 分数低就自动触发外部审稿", cross_review)
+
+        self.assertIn("optional heuristic", reader_review)
+        self.assertIn("不要在每 10 章、8w/10w/15w、卷末默认运行它", reader_review)
+
+        self.assertIn("Run External AI Review", readme)
+        self.assertIn(".fanqie-plus/scripts/fanqie_audit.py --project-root . cross-parse", readme)
+        self.assertIn("Reader reports are copied to `05_reviews/reader/` and should be treated as hints only", readme)
+        self.assertNotIn("Run advisory reader simulation and cross-agent review at 10-chapter", readme)
+
     def test_continue_stage_uses_lean_default_transaction(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
         continue_stage = section(skill, "### 3. Continue the next chapter", "### 4. Repair a chapter")
@@ -223,6 +258,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "04_chapters/final/第N章.md",
             "03_memory/chapter_summaries.md",
             "03_memory/pacing_ledger.csv",
+            "scripts/fanqie_doctor.py",
+            "scripts/git_checkpoint.py",
             "Only then may the next chapter start",
             "strict review mode",
             "Write `05_reviews/第N章-review.md` only in strict review mode",
@@ -250,6 +287,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "`gate_check.py` fails",
             "Batch generation repeats this transaction for each chapter",
             "Do not draft later chapters first and gate them afterward",
+            "fanqie_doctor.py",
+            "git_checkpoint.py",
         ]
 
         for snippet in required_snippets:
