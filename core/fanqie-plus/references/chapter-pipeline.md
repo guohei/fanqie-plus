@@ -14,10 +14,11 @@ Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit z
 4. Save `04_chapters/drafts/第NNN章.md`.
 5. Run `scripts/gate_check.py` and save `05_reviews/第NNN章-gate.json`.
 6. Repair blocking mechanical findings before continuing.
-7. Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed.
-8. Run one Memory Commit after final is accepted.
-9. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available before starting the next chapter.
-10. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the transaction completes.
+7. Run the internal Style QA pass after gate_check and before final: protagonist fit, dialogue distinction, escalation, concrete hook, and AI residue. Repair local drift before continuing.
+8. Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed.
+9. Run one Memory Commit after final is accepted.
+10. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available before starting the next chapter.
+11. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the transaction completes.
 
 ## Strict Review Mode
 

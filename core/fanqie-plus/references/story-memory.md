@@ -93,6 +93,8 @@ Update memory only after a chapter passes gates or after the user accepts a repa
 
 Treat routine memory work as one Memory Commit: one post-final operation that appends `chapter_summaries.md`, updates `novel_state.json`, appends `pacing_ledger.csv`, and touches bible files only when accepted正文 changes durable facts. Do not split this into separate user-facing steps, and do not update memory from draft text.
 
+Do not record ordinary details, empty plans, prose impressions, or temporary emotions unless they changed durable facts. Long-running projects stay coherent by remembering fewer, harder facts.
+
 Record facts, not interpretations. Prefer:
 
 - "陆沉在第12章知道林晚有系统异常。"

@@ -185,6 +185,10 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertIn("Memory Commit", text)
         self.assertIn("one post-final operation", text)
+        self.assertIn("durable facts", text)
+        self.assertIn("Do not record ordinary details", text)
+        self.assertIn("empty plans", text)
+        self.assertIn("prose impressions", text)
         self.assertIn("- Outline sync:", text)
         self.assertIn("Use `Outline sync:` only for real plan drift", text)
         self.assertIn("Do not create extra drift ledgers", text)
@@ -213,7 +217,15 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertIn("AI_FINGERPRINTS", text)
         self.assertIn("6 or more advisory AI-pattern findings", text)
-        self.assertLessEqual(len(text.splitlines()), 110)
+        self.assertIn("Style QA", text)
+        self.assertIn("internal five-question pass", text)
+        self.assertIn("Do not write a separate file", text)
+        self.assertIn("protagonist choice still fits", text)
+        self.assertIn("dialogue voices remain distinguishable", text)
+        self.assertIn("pressure, payoff, or 爽点 escalates", text)
+        self.assertIn("ending hook is concrete", text)
+        self.assertIn("AI-pattern residue is not increasing", text)
+        self.assertLessEqual(len(text.splitlines()), 125)
         self.assertNotIn("命运的齿轮", text)
         self.assertNotIn("让...成为可能", text)
 
@@ -289,6 +301,7 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "Save a Micro Beat to `05_reviews/第NNN章-beat.md`",
             "save `05_reviews/第NNN章-gate.json`",
             "Memory Commit",
+            "Run the internal Style QA pass after gate_check and before final",
             "Strict Review Mode",
             "Write `05_reviews/第NNN章-review.md` only when strict mode is triggered",
             "Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed",
@@ -307,6 +320,7 @@ class ProjectAgentsContractTests(unittest.TestCase):
 
         self.assertNotIn("## Beat Sheet First", text)
         self.assertNotIn("Chapter Function\n[What this chapter must achieve]", text)
+        self.assertNotIn("Style QA file", text)
 
     def test_new_project_adapters_also_create_agents_file(self) -> None:
         for path in [GEMINI_NEW, WINDSURF_NEW]:

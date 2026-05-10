@@ -42,6 +42,18 @@ Use `scripts/gate_check.py` for:
 - Missing title.
 - Weak hook keywords as a warning.
 
+## Style QA
+
+Use Style QA as an internal five-question pass after mechanical gates and before final. Do not write a separate file unless strict review mode is triggered.
+
+1. Confirm the protagonist choice still fits established desire, tactics, and limits.
+2. Confirm dialogue voices remain distinguishable if speaker names are removed.
+3. Confirm pressure, payoff, or 爽点 escalates instead of repeating the last chapter's move.
+4. Confirm the ending hook is concrete, visible, and tied to this chapter's pressure.
+5. Confirm AI-pattern residue is not increasing: explanation, stock phrasing, same sentence shapes, or told emotions.
+
+If any answer fails, repair the local scene or prose before final. Keep this as a short judgment pass, not another artifact.
+
 ## Strict Semantic Review
 
 Save `05_reviews/第N章-review.md` only when strict review mode is triggered: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, `gate_check.py` failure, user dissatisfaction, major continuity changes, or publish/export preparation.
