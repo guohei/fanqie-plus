@@ -47,6 +47,40 @@ python <skill>/scripts/fanqie_audit.py --project-root . cross-parse \
 
 退出码：`0` 无 P0 / `1` 有 P0 / `2` 输入错误。P1 会进入 issues JSON，但不靠退出码阻塞日更。
 
+## 多角色审稿
+
+多角色审稿只用于 strict review 场景：用户明确要求、质量疑虑、重大改纲、连续修文、卷末、8w/10w/15w、或 10 章审查发现真实风险。不要把它加入默认日更流程。
+
+模式：
+
+- `auto | live | prompt-pack | simulated | off`
+- `auto`：优先使用真实子代理；当 live delegation 不明确时，降级为 `prompt-pack`。In the CLI adapter, auto resolves to prompt-pack when live delegation is not explicit.
+- `live`：只有当前运行环境显式暴露 delegation/subagent 工具时使用，例如 `spawn_agent`、`Task`、`delegate`、`subagent`、`worker`。Do not choose live mode unless the current runtime exposes a real delegation/subagent tool.
+- `prompt-pack`：为不支持子代理的环境生成多个角色 prompt 文件，交给不同模型/会话后保存报告。
+- `simulated`：单会话模拟圆桌。Simulated roundtable is only a low-trust diagnostic，不能替代外部审稿。
+- `off`：关闭多角色审稿。
+
+推荐角色：
+
+- `gold-author`：番茄金番作家，审爽点、节奏、钩子、名场面。
+- `chief-editor`：番茄主编，审商业承诺、题材适配、毒点、平台风险。
+- `veteran-reader`：看书十年的老书虫，审追读欲、无聊段、套路疲劳、角色降智。
+- `platform-operator`：连载运营编辑，审阶段节奏、节点准备、更新稳定性。
+
+生成 prompt 包：
+
+```bash
+python <skill>/scripts/fanqie_audit.py --project-root . multi-review \
+  --chapter 42 \
+  --preset roundtable \
+  --mode prompt-pack
+# → 产物：05_reviews/cross/multi_review/ch042/
+```
+
+`dual` 预设包含 `gold-author` + `chief-editor`；`roundtable` 预设包含 `gold-author` + `chief-editor` + `veteran-reader`。需要自定义时用 `--roles gold-author,chief-editor,platform-operator`。
+
+The writing agent remains the chief editor. 子代理或外部审稿人只给意见，不直接改 `04_chapters/final/`。主写作 Agent 汇总报告，合并重复项，只按 P0 和必要 P1 做最小修复；P2 进入 backlog，不阻塞日更。
+
 ## 批量审稿
 
 用于 10 章段落、卷末、8w/10w/15w 节点。它只生成批量审稿 prompt，不会自动调用另一个 LLM。

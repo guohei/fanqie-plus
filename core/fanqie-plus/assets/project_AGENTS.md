@@ -19,7 +19,7 @@ Before starting the next chapter, the current chapter must have:
 - `04_chapters/final/第NNN章.md`
 - one post-final Memory Commit
 
-NNN is the three-digit zero-padded chapter number, such as `001` or `024`. For batch writing, repeat this gate per chapter. Do not write later chapters first and check them afterward.
+NNN is the three-digit zero-padded chapter number, such as `001` or `024`. Do not batch write or auto-continue. Each user request may draft at most one chapter; after the gate passes, stop and wait for the next explicit request.
 Write `05_reviews/第NNN章-review.md` only when strict review mode is triggered.
 
 ## 10-Chapter Consistency Audit

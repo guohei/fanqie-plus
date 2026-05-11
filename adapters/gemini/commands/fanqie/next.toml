@@ -2,7 +2,7 @@ description = "Continue the next Fanqie chapter"
 prompt = """
 Use the fanqie-plus skill from skills/fanqie-plus.
 
-Continue the next chapter. Identify the chapter number, read the minimal context, optionally lazy-load at most two relevant genre/hook/style leaf files, save a Micro Beat outside正文, draft a 2000-4000 CJK character chapter unless project config overrides it, run gates, move accepted正文 to final, then run one Memory Commit only after the chapter passes.
+Continue the next chapter. Draft one chapter only; do not batch and do not auto-continue. Identify the chapter number, read the minimal context, optionally lazy-load at most two relevant genre/hook/style leaf files, save a Micro Beat outside正文, draft a 2000-4000 CJK character chapter unless project config overrides it, run gates, move accepted正文 to final, then run one Memory Commit only after the chapter passes and stop.
 
 User input:
 {{args}}

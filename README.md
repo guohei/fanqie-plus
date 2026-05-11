@@ -236,6 +236,8 @@ Runs mechanical gates first, then exports clean `.txt` files under `06_export/fa
 
 Use external AI review when a checkpoint actually needs an independent read: 8w, 10w, 15w, volume endings, major repair decisions, persistent quality doubts, or user-requested review. The reviewer must be a different model/session from the writing agent.
 
+Chapter drafting remains manual-cadence: each user request writes one chapter only; do not batch write or auto-continue. Multi-chapter tools here are for review and audit prompts, not unattended正文 generation.
+
 ```bash
 cd ./my-novel
 .fanqie-plus/scripts/fanqie_audit.py --project-root . cross-review --chapter 50
@@ -247,6 +249,17 @@ For a 10-chapter span or volume/checkpoint review:
 .fanqie-plus/scripts/fanqie_audit.py --project-root . cross-batch \
   --chapter-start 41 --chapter-end 50
 ```
+
+For high-risk chapters, generate a multi-role prompt pack instead of assuming every agent can launch subagents:
+
+```bash
+.fanqie-plus/scripts/fanqie_audit.py --project-root . multi-review \
+  --chapter 50 \
+  --preset roundtable \
+  --mode prompt-pack
+```
+
+Use `--mode live` only when the current runtime exposes real subagent/delegation tools. In CLI use, `auto` resolves to `prompt-pack`.
 
 Cross-review prompts are copied to `05_reviews/cross/`. Paste the prompt into a separate LLM, save its report under `05_reviews/cross/`, then parse saved reports with:
 

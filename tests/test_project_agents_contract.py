@@ -95,7 +95,7 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "05_reviews/第NNN章-gate.json",
             "04_chapters/final/第NNN章.md",
             "one post-final Memory Commit",
-            "For batch writing, repeat this gate per chapter",
+            "Do not batch write or auto-continue",
             "Write `05_reviews/第NNN章-review.md` only when strict review mode is triggered",
         ]
 
@@ -252,6 +252,13 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("外部 AI 审稿使用文档", cross_review)
         self.assertIn("fanqie_audit.py --project-root . cross-parse", cross_review)
         self.assertIn("--report-file", cross_review)
+        self.assertIn("multi-review", cross_review)
+        self.assertIn("auto | live | prompt-pack | simulated | off", cross_review)
+        self.assertIn("Do not choose live mode unless the current runtime exposes a real delegation/subagent tool", cross_review)
+        self.assertIn("auto resolves to prompt-pack when live delegation is not explicit", cross_review)
+        self.assertIn("Simulated roundtable is only a low-trust diagnostic", cross_review)
+        self.assertIn("The writing agent remains the chief editor", cross_review)
+        self.assertIn("子代理或外部审稿人只给意见，不直接改 `04_chapters/final/`", cross_review)
         self.assertNotIn("--report 05_reviews", cross_review)
         self.assertNotIn("cross_agent_reviewer.py parse", cross_review)
         self.assertIn("不要因为 `reader_report` 分数低就自动触发外部审稿", cross_review)
@@ -280,15 +287,20 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "Memory Commit",
             "scripts/fanqie_doctor.py",
             "scripts/git_checkpoint.py",
-            "Only then may the next chapter start",
+            "Only a later explicit user request may start another chapter",
             "strict review mode",
             "Write `05_reviews/第NNN章-review.md` only in strict review mode",
+            "at most one chapter",
+            "Do not satisfy multi-chapter or automatic-writing requests",
         ]
 
         for snippet in required_snippets:
             self.assertIn(snippet, continue_stage)
 
         self.assertNotIn("perform semantic checks yourself", continue_stage)
+        self.assertNotIn("今天N章", continue_stage)
+        self.assertNotIn("single/batch", continue_stage)
+        self.assertNotIn("For batch requests", continue_stage)
 
     def test_chapter_pipeline_requires_lean_transaction_and_strict_review_triggers(self) -> None:
         text = CHAPTER_PIPELINE.read_text(encoding="utf-8")
@@ -309,8 +321,9 @@ class ProjectAgentsContractTests(unittest.TestCase):
             "every 10-chapter audit",
             "8w, 10w, or 15w",
             "`gate_check.py` fails",
-            "Batch generation repeats this transaction for each chapter",
-            "Do not draft later chapters first and gate them afterward",
+            "No Batch Or Auto Writing",
+            "At most one chapter may be drafted per user request",
+            "Do not batch draft, auto-continue, or run unattended writing loops",
             "fanqie_doctor.py",
             "git_checkpoint.py",
         ]
@@ -321,6 +334,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertNotIn("## Beat Sheet First", text)
         self.assertNotIn("Chapter Function\n[What this chapter must achieve]", text)
         self.assertNotIn("Style QA file", text)
+        self.assertNotIn("## Batch Generation", text)
+        self.assertNotIn("Batch generation repeats", text)
 
     def test_new_project_adapters_also_create_agents_file(self) -> None:
         for path in [GEMINI_NEW, WINDSURF_NEW]:
@@ -332,7 +347,20 @@ class ProjectAgentsContractTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             self.assertIn("Micro Beat", text, f"{path} should use the lightweight beat path")
             self.assertIn("Memory Commit", text, f"{path} should use the post-final memory transaction")
+            self.assertIn("one chapter", text.lower(), f"{path} should forbid batch chapter drafting")
+            self.assertIn("do not batch", text.lower(), f"{path} should forbid batch chapter drafting")
+            self.assertIn("do not auto-continue", text.lower(), f"{path} should forbid automatic continuation")
             self.assertNotIn("create a beat sheet", text.lower(), f"{path} should not ask for a full beat sheet by default")
+
+    def test_open_book_replaces_automation_level_with_manual_chapter_approval(self) -> None:
+        open_book = (SKILL_ROOT / "references" / "open-book.md").read_text(encoding="utf-8")
+        skill = SKILL.read_text(encoding="utf-8")
+
+        self.assertIn("Approval cadence", open_book)
+        self.assertIn("No auto-writing", open_book)
+        self.assertIn("approval cadence", skill)
+        self.assertNotIn("Automation level", open_book)
+        self.assertNotIn("automation level", skill)
 
 
 if __name__ == "__main__":

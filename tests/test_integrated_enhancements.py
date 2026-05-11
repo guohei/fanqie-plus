@@ -163,6 +163,76 @@ class IntegratedEnhancementTests(unittest.TestCase):
         self.assertIn('"p0_count": 1', issues_text)
         self.assertIn("主角上午死亡下午出现", issues_text)
 
+    def test_fanqie_audit_generates_multi_review_prompt_pack(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "00_config").mkdir()
+            (root / "02_outline").mkdir()
+            (root / "03_memory").mkdir()
+            (root / "04_chapters" / "final").mkdir(parents=True)
+            (root / "00_config" / "style_bible.md").write_text(
+                "# Style Bible\n\n- POV: third-person limited\n- Tone: 爽文\n",
+                encoding="utf-8",
+            )
+            (root / "02_outline" / "chapter_queue.yaml").write_text(
+                "- chapter: 1\n  function: first pressure and visible hook\n",
+                encoding="utf-8",
+            )
+            (root / "03_memory" / "chapter_summaries.md").write_text(
+                "## 第0章 前情\n- Hook: 门外有人敲门\n",
+                encoding="utf-8",
+            )
+            chapter = root / "04_chapters" / "final" / "第001章.md"
+            chapter.write_text(
+                "第001章 测试\n" + "他推开门，看见那封不该出现的录取通知书。\n" * 80,
+                encoding="utf-8",
+            )
+
+            generated = subprocess.run(
+                [
+                    sys.executable,
+                    str(AUDIT),
+                    "--project-root",
+                    str(root),
+                    "multi-review",
+                    "--chapter",
+                    "1",
+                    "--preset",
+                    "roundtable",
+                    "--mode",
+                    "prompt-pack",
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            out_dir = root / "05_reviews" / "cross" / "multi_review" / "ch001"
+            manifest = out_dir / "manifest.json"
+            gold_author = out_dir / "gold-author.prompt.md"
+            chief_editor = out_dir / "chief-editor.prompt.md"
+            veteran_reader = out_dir / "veteran-reader.prompt.md"
+            synthesis = out_dir / "00_synthesis.prompt.md"
+            manifest_exists = manifest.is_file()
+            gold_author_exists = gold_author.is_file()
+            chief_editor_exists = chief_editor.is_file()
+            veteran_reader_exists = veteran_reader.is_file()
+            synthesis_exists = synthesis.is_file()
+            manifest_text = manifest.read_text(encoding="utf-8") if manifest.is_file() else ""
+            gold_text = gold_author.read_text(encoding="utf-8") if gold_author.is_file() else ""
+
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        self.assertTrue(manifest_exists)
+        self.assertTrue(gold_author_exists)
+        self.assertTrue(chief_editor_exists)
+        self.assertTrue(veteran_reader_exists)
+        self.assertTrue(synthesis_exists)
+        self.assertIn('"requested_mode": "prompt-pack"', manifest_text)
+        self.assertIn('"resolved_mode": "prompt-pack"', manifest_text)
+        self.assertIn("番茄金番作家", gold_text)
+        self.assertIn("只输出 P0/P1/P2", gold_text)
+        self.assertIn("不要改写整章", gold_text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -14,6 +14,7 @@ Build and maintain a long-form Chinese web novel optimized for Fanqie-style mobi
 - Keep正文 and meta separate. Never place analysis, TODOs, gate notes, bracketed instructions, or author comments inside chapter正文.
 - Load the smallest useful context: project state, current anchor, chapter brief, relevant characters, last chapter, and selected memory snippets.
 - Do not advance to the next chapter while the current chapter gate fails. Repair first.
+- Draft at most one chapter per user request. Do not batch write, auto-continue, or run unattended writing loops.
 - Keep routine drift control inside existing outline, memory, pacing, and 10-chapter audit files. Do not add new tracking artifacts unless the user explicitly asks.
 - Put craft details in project config or references, not in project-root `AGENTS.md`.
 - Use scripts for deterministic checks and exports; use agent judgment for semantic quality.
@@ -27,7 +28,7 @@ Build and maintain a long-form Chinese web novel optimized for Fanqie-style mobi
 Use when the user has an idea, trope, genre, title, or only says they want to write a Fanqie novel.
 
 1. Read `references/open-book.md`.
-2. Confirm or infer the five seed fields: target reader, style, forbidden zones, automation level, and target scale.
+2. Confirm or infer the five seed fields: target reader, style, forbidden zones, approval cadence, and target scale.
 3. Identify the dominant genre. If the genre is clear, read `references/genres/INDEX.md`, then `references/genres/INDEX-genre-frameworks.md`, then load only the matching genre subfile. Do not read the whole `genres/` tree.
 4. Create the directory structure under `Project Layout` with your file tools.
 5. Embed the skill into project-root `.fanqie-plus/` with `scripts/install_project_skill.py --project-root <book>` when available; otherwise copy this skill directory there manually.
@@ -43,13 +44,13 @@ Use when creating or rebuilding the roadmap, volume plan, chapter queue, or mill
 1. Read `references/outline-anchor.md` and `references/fanqie-platform.md`.
 2. Produce a roadmap with stage/volume anchors, expected word counts, cool-down chapters, and major reveal limits.
 3. Fill `02_outline/chapter_queue.yaml` for the next 10-30 chapters only; keep far-future plans coarse.
-4. Mark Fanqie checkpoints: golden three chapters, 8w review, 10w launch readiness, 15w automatic review.
+4. Mark Fanqie checkpoints: golden three chapters, 8w review, 10w launch readiness, and 15w platform review.
 
 ### 3. Continue the next chapter
 
-Use for "继续写", "写下一章", "今天N章", or any single/batch chapter drafting request.
+Use for "继续写", "写下一章", or any request to draft the current next chapter.
 
-Default continuation is a lean single-chapter transaction:
+Default continuation is a lean single-chapter transaction: at most one chapter may be drafted per user request. Do not satisfy multi-chapter or automatic-writing requests; if the user asks for several chapters or unattended writing, draft only the immediate next chapter and stop after the checkpoint.
 
 1. Read `references/chapter-pipeline.md`, determine the next chapter from `03_memory/novel_state.json` or `04_chapters/final/`, and check `next_required_review`. If the next chapter would pass a due review, run the stage review first.
 2. Read the minimal context set listed in `chapter-pipeline.md`. Lazy-load `story-memory.md`, `quality-gates.md`, `outline-anchor.md`, or `references/genres/` only for uncertainty, failed gates, chapters 1-3, new arcs, checkpoints, or a specific prose problem.
@@ -57,12 +58,12 @@ Default continuation is a lean single-chapter transaction:
 4. Save a Micro Beat to `05_reviews/第NNN章-beat.md`, then save draft正文 to `04_chapters/drafts/第NNN章.md`.
 5. Run `scripts/gate_check.py` and save JSON to `05_reviews/第NNN章-gate.json`; repair blocking mechanical findings before final.
 6. Save accepted正文 to `04_chapters/final/第NNN章.md`, then run one Memory Commit.
-7. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available. Only then may the next chapter start.
+7. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available. Only a later explicit user request may start another chapter.
 8. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the chapter transaction is complete.
 
 Write `05_reviews/第NNN章-review.md` only in strict review mode: chapters 1-3, every 10-chapter audit, 8w/10w/15w, volume boundaries, gate failure, user dissatisfaction, major plot or continuity changes, or publish/export preparation.
 
-For batch requests, repeat the lean transaction in order for each chapter. Do not draft later chapters before the current chapter's gate, final, and memory updates are complete.
+Reject batch writing and auto-writing as workflow violations. Never draft a later chapter in the same request, even if the current chapter passes.
 
 ### 4. Repair a chapter
 
@@ -80,7 +81,7 @@ Use every 10 chapters and at Fanqie checkpoints.
 1. Read `references/fanqie-platform.md` and `references/quality-gates.md`.
 2. At every 10-chapter review, read `references/consistency-audit.md` and write the consistency report to `05_reviews/consistency/chapter-XXX.md` before continuing.
 3. Check: golden three chapters, title/introduction promise, character consistency, pacing ledger, unresolved hooks, AI-pattern residue, and toxicity/risk points.
-4. Use `references/cross-review.md` for 8w/10w/15w, volume endings, major repair decisions, persistent quality doubts, or user-requested independent review. The reviewer must be a different model/session. Parse saved external reports with `scripts/fanqie_audit.py cross-parse`.
+4. Use `references/cross-review.md` for 8w/10w/15w, volume endings, major repair decisions, persistent quality doubts, or user-requested independent review. For high-risk chapters, it may generate single-review, multi-review prompt packs, or live subagent instructions when the runtime truly supports subagents. The reviewer must be a different model/session unless explicitly using low-trust simulated diagnostics. Parse saved external reports with `scripts/fanqie_audit.py cross-parse`.
 5. Use `references/reader-review.md` only as an optional heuristic diagnostic when chapter hook, pace, or AI-pattern risk is uncertain and no external review is warranted. It is not a default 10-chapter or checkpoint gate.
 6. Produce a prioritized fix list. Separate "must repair before continuing" from "can improve later". Treat consistency-audit blocking conflicts and cross-review P0 findings as blocking before continuing. Treat reader-report findings as hints, never as blocking by themselves.
 
@@ -149,7 +150,7 @@ book/
 - `scripts/git_checkpoint.py`: commit and push project changes after completed chapters, reviews, repairs, exports, or outline changes.
 - `scripts/fanqie_doctor.py`: check project/chapter workflow completeness and optional Git remote readiness. It reads artifacts only and returns nonzero when a chapter transaction, due review, or required checkpoint prerequisite is incomplete.
 - `scripts/export_fanqie.py`: gate final chapters, then convert Markdown/text into Fanqie-ready `.txt`.
-- `scripts/fanqie_audit.py`: adapt fanqie-plus project layout to optional reader diagnostics, cross-review prompt export, and external report parsing.
+- `scripts/fanqie_audit.py`: adapt fanqie-plus project layout to optional reader diagnostics, cross-review prompt export, multi-review prompt packs, and external report parsing.
 - `scripts/cross_agent_reviewer.py`: generate prompts for a separate LLM and parse P0/P1/P2 issue reports. Primary external review layer, not a self-review substitute.
 - `scripts/reader_simulator.py`: optional heuristic reader-perspective scoring. Use only through `fanqie_audit.py` when a quick diagnostic is worth the extra artifact.
 

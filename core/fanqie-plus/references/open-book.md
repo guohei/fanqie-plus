@@ -11,7 +11,7 @@ Write the answers to `00_config/idea_seed.md`.
 | Target reader | Decide trope density, tone, gender/age taste, and platform promise | 番茄移动端爽文读者, prefers fast hooks and clear payoff |
 | Writing style | Bind POV, dialogue density, sentence rhythm, humor, sensory detail | Third-person limited, clear mobile prose, medium-high dialogue |
 | Forbidden zones | Avoid reader thunder points, sensitive content, and unwanted tropes | No sudden abuse-for-abuse, no unresolved cheating romance, no author lectures |
-| Automation level | Decide how often to ask the user before continuing | Semi-auto: confirm every 10 chapters and at major turns |
+| Approval cadence | Decide checkpoints for user review, without auto-writing | No auto-writing; user explicitly requests each chapter; confirm every 10 chapters and at major turns |
 | Target scale | Keep runway and avoid early resolution | 100-300w words, 2000-4000 characters/chapter |
 
 If the user is vague, give 2-3 concrete options. Do not ask a long questionnaire unless the user wants a workshop.

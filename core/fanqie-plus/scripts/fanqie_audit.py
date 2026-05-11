@@ -40,6 +40,54 @@ from cross_agent_reviewer import parse_review_report
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKDIR_NAME = ".audit_workdir"
 
+MULTI_REVIEW_MODES = {"auto", "live", "prompt-pack", "simulated", "off"}
+MULTI_REVIEW_PRESETS = {
+    "dual": ["gold-author", "chief-editor"],
+    "roundtable": ["gold-author", "chief-editor", "veteran-reader"],
+}
+MULTI_REVIEW_ROLES = {
+    "gold-author": {
+        "title": "番茄金番作家",
+        "mission": "从爆款作者视角审爽点、节奏、钩子、名场面和章节落点。",
+        "focus": [
+            "本章爽点或情绪兑现是否可见",
+            "章首压力是否足够近",
+            "章末钩子是否让读者想点下一章",
+            "桥段是否像可连载的番茄商业章，而不是剧情说明书",
+        ],
+    },
+    "chief-editor": {
+        "title": "番茄主编",
+        "mission": "从平台主编视角审商业承诺、题材适配、毒点和关键节点风险。",
+        "focus": [
+            "是否兑现标题、简介、黄金三章或当前阶段承诺",
+            "是否有劝退毒点、平台风险或读者预期错位",
+            "是否存在必须先修再继续的结构性问题",
+            "修复建议是否足够小，不伤害连载推进",
+        ],
+    },
+    "veteran-reader": {
+        "title": "看书十年的老书虫",
+        "mission": "从真实追更读者视角审无聊段、套路疲劳、角色降智和追读欲。",
+        "focus": [
+            "哪些段落最想滑走",
+            "角色行为是否像活人，还是为了剧情硬转",
+            "套路是否疲劳，是否缺少新鲜变量",
+            "读完本章后最想知道什么，以及是否足够具体",
+        ],
+    },
+    "platform-operator": {
+        "title": "连载运营编辑",
+        "mission": "从连载运营视角审更新稳定性、阶段节奏和商业节点准备。",
+        "focus": [
+            "当前章节是否服务 8w、10w、15w 或卷末节点",
+            "是否存在连续慢章、连续高潮或缓冲不足",
+            "下一章期待是否清晰可运营",
+            "哪些问题可以进 backlog，不要阻塞日更",
+        ],
+    },
+}
+
 
 def build_workdir(fanqie_root: Path) -> Path:
     workdir = fanqie_root / WORKDIR_NAME
@@ -321,6 +369,256 @@ def run_cross_parse(args: argparse.Namespace, fanqie_root: Path) -> int:
     return 1 if result["p0_count"] > 0 else 0
 
 
+def _read_excerpt(path: Path, limit: int = 3000, tail: bool = False) -> str:
+    if not path.is_file():
+        return "（缺失）"
+    text = path.read_text(encoding="utf-8")
+    if len(text) <= limit:
+        return text
+    excerpt = text[-limit:] if tail else text[:limit]
+    marker = "（前文截断，仅保留末尾）" if tail else "（后文截断）"
+    return f"{excerpt}\n\n{marker}"
+
+
+def _multi_review_roles(preset: str, roles_arg: str | None) -> list[str]:
+    roles = [r.strip() for r in roles_arg.split(",")] if roles_arg else MULTI_REVIEW_PRESETS[preset]
+    unknown = [r for r in roles if r not in MULTI_REVIEW_ROLES]
+    if unknown:
+        raise ValueError(f"unknown role(s): {', '.join(unknown)}")
+    return roles
+
+
+def _multi_review_context(fanqie_root: Path) -> str:
+    parts = [
+        ("Style Bible", fanqie_root / "00_config" / "style_bible.md", 2000, False),
+        ("Chapter Queue", fanqie_root / "02_outline" / "chapter_queue.yaml", 3000, False),
+        ("Recent Chapter Summaries", fanqie_root / "03_memory" / "chapter_summaries.md", 3000, True),
+        ("Foreshadowing", fanqie_root / "01_bible" / "foreshadowing.yaml", 2000, False),
+    ]
+    rendered = []
+    for title, path, limit, tail in parts:
+        rendered.append(f"## {title}\n\n{_read_excerpt(path, limit=limit, tail=tail)}")
+    return "\n\n".join(rendered)
+
+
+def _render_role_prompt(
+    *,
+    chapter: int,
+    chapter_content: str,
+    context: str,
+    role_key: str,
+    requested_mode: str,
+    resolved_mode: str,
+) -> str:
+    role = MULTI_REVIEW_ROLES[role_key]
+    focus = "\n".join(f"- {item}" for item in role["focus"])
+    return f"""# 多角色外部审稿 Prompt
+
+## 角色
+
+你是{role["title"]}。{role["mission"]}
+
+## 审稿模式
+
+- requested_mode: {requested_mode}
+- resolved_mode: {resolved_mode}
+- 你只负责独立审稿，不负责汇总，不直接改写正文。
+
+## 最小上下文包
+
+{context}
+
+## 待审正文
+
+{chapter_content}
+
+## 审稿重点
+
+{focus}
+
+## 输出要求
+
+只输出 P0/P1/P2 问题和最小修复建议。不要客套，不要说"写得不错"。
+
+必须按下列结构输出：
+
+```markdown
+# 第{chapter:03d}章 · {role["title"]}审稿报告
+
+## Verdict
+- 建议：通过 / 修复后通过 / 强制重写
+- P0:
+- P1:
+- P2:
+
+## Issues
+| # | 严重度 | 位置 | 类型 | 问题描述 | 最小修复建议 |
+|---|:------:|------|------|---------|-------------|
+
+## Keep
+- [最多 3 条，不要泛夸，只保留不能误删的有效功能]
+```
+
+规则：
+1. 只输出 P0/P1/P2；P0 才能阻塞继续写。
+2. 每条问题必须有具体位置或引用原文。
+3. 不要改写整章，只给最小修复建议。
+4. 子代理或外部审稿人只给意见，不直接改 `04_chapters/final/`。
+5. 如果没有 P0/P1/P2，明确写"无阻塞问题"。
+"""
+
+
+def _render_synthesis_prompt(chapter: int, roles: list[str], requested_mode: str, resolved_mode: str) -> str:
+    role_titles = ", ".join(MULTI_REVIEW_ROLES[r]["title"] for r in roles)
+    return f"""# 第{chapter:03d}章 多角色审稿汇总 Prompt
+
+你是写作 Agent，也是最终总编。你要汇总这些独立审稿报告：{role_titles}。
+
+## 模式
+
+- requested_mode: {requested_mode}
+- resolved_mode: {resolved_mode}
+
+## 汇总规则
+
+1. The writing agent remains the chief editor: 只由你裁决是否修改正文。
+2. 子代理或外部审稿人只给意见，不直接改 `04_chapters/final/`。
+3. 合并重复问题，优先处理 P0，其次处理会影响当前节点的 P1。
+4. P2 进入 backlog；不要为了 P2 大修日更章。
+5. 若意见冲突，以正文功能、读者承诺、已建记忆和最小修复原则裁决。
+
+## 输出格式
+
+```markdown
+# 第{chapter:03d}章 多角色审稿汇总
+
+## Verdict
+- passed: true/false
+- must repair before continuing:
+
+## Consolidated P0
+- [none or issue]
+
+## Consolidated P1
+- [none or issue]
+
+## P2 Backlog
+- [none or issue]
+
+## Minimal Repair Plan
+- [only edits needed before final/next chapter]
+```
+"""
+
+
+def run_multi_review(args: argparse.Namespace, fanqie_root: Path) -> int:
+    if args.mode not in MULTI_REVIEW_MODES:
+        print(f"错误：未知 multi-review mode: {args.mode}", file=sys.stderr)
+        return 2
+    if args.mode == "off":
+        print("[fanqie_audit] multi-review is off", file=sys.stderr)
+        return 0
+    if args.preset not in MULTI_REVIEW_PRESETS:
+        print(f"错误：未知 multi-review preset: {args.preset}", file=sys.stderr)
+        return 2
+
+    try:
+        chapter = int(args.chapter)
+    except ValueError:
+        print(f"错误：--chapter 必须是整数（收到 {args.chapter!r}）", file=sys.stderr)
+        return 2
+
+    try:
+        roles = _multi_review_roles(args.preset, args.roles)
+    except ValueError as e:
+        print(f"错误：{e}", file=sys.stderr)
+        return 2
+
+    chapter_file = _autoresolve_chapter_file(fanqie_root, chapter)
+    if not chapter_file:
+        print(f"错误：未在 04_chapters/final/ 找到第 {chapter} 章。", file=sys.stderr)
+        return 2
+
+    resolved_mode = "prompt-pack" if args.mode == "auto" else args.mode
+    if args.mode == "auto":
+        print("[fanqie_audit] auto mode resolved to prompt-pack; CLI cannot inspect runtime subagent tools", file=sys.stderr)
+
+    out_dir = (
+        Path(args.output_dir).expanduser()
+        if args.output_dir
+        else fanqie_root / "05_reviews" / "cross" / "multi_review" / f"ch{chapter:03d}"
+    )
+    if not out_dir.is_absolute():
+        out_dir = fanqie_root / out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in out_dir.glob("*.prompt.md"):
+        stale.unlink()
+
+    chapter_content = chapter_file.read_text(encoding="utf-8")
+    context = _multi_review_context(fanqie_root)
+
+    written: list[str] = []
+    if resolved_mode == "simulated":
+        combined_roles = "\n\n".join(
+            _render_role_prompt(
+                chapter=chapter,
+                chapter_content=chapter_content,
+                context=context,
+                role_key=role_key,
+                requested_mode=args.mode,
+                resolved_mode=resolved_mode,
+            )
+            for role_key in roles
+        )
+        prompt_path = out_dir / "simulated-roundtable.prompt.md"
+        prompt_path.write_text(combined_roles, encoding="utf-8")
+        written.append(prompt_path.name)
+    else:
+        for role_key in roles:
+            prompt = _render_role_prompt(
+                chapter=chapter,
+                chapter_content=chapter_content,
+                context=context,
+                role_key=role_key,
+                requested_mode=args.mode,
+                resolved_mode=resolved_mode,
+            )
+            prompt_path = out_dir / f"{role_key}.prompt.md"
+            prompt_path.write_text(prompt, encoding="utf-8")
+            written.append(prompt_path.name)
+
+    synthesis_path = out_dir / "00_synthesis.prompt.md"
+    synthesis_path.write_text(
+        _render_synthesis_prompt(chapter, roles, args.mode, resolved_mode),
+        encoding="utf-8",
+    )
+    written.append(synthesis_path.name)
+
+    manifest = {
+        "chapter": chapter,
+        "chapter_file": str(chapter_file),
+        "requested_mode": args.mode,
+        "resolved_mode": resolved_mode,
+        "preset": args.preset,
+        "roles": [{"key": key, "title": MULTI_REVIEW_ROLES[key]["title"]} for key in roles],
+        "output_dir": str(out_dir),
+        "prompts": written,
+        "rules": [
+            "Do not choose live mode unless the current runtime exposes a real delegation/subagent tool.",
+            "auto resolves to prompt-pack when live delegation is not explicit.",
+            "Simulated roundtable is only a low-trust diagnostic.",
+            "The writing agent remains the chief editor.",
+            "External reviewers do not directly edit 04_chapters/final/.",
+        ],
+    }
+    manifest_path = out_dir / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"[fanqie_audit] multi-review prompts → {out_dir}", file=sys.stderr)
+    print(json.dumps(manifest, ensure_ascii=False, indent=2))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(prog="fanqie_audit.py", description="fanqie-plus → novelist 审稿适配层")
     ap.add_argument("--project-root", required=True, help="fanqie-plus 书籍项目根目录（含 02_outline/、04_chapters/）")
@@ -349,6 +647,13 @@ def main() -> int:
     cp.add_argument("--report-file", required=True, help="外部审稿报告路径；可传绝对路径、项目相对路径，或 05_reviews/cross/ 下的文件名。")
     cp.add_argument("--output", default=None, help="覆盖默认 issues JSON 输出路径。")
 
+    mr = sub.add_parser("multi-review", help="生成多角色审稿 prompt 包")
+    mr.add_argument("--chapter", required=True, help="章节号")
+    mr.add_argument("--preset", choices=sorted(MULTI_REVIEW_PRESETS), default="dual")
+    mr.add_argument("--mode", choices=sorted(MULTI_REVIEW_MODES), default="auto")
+    mr.add_argument("--roles", default=None, help="逗号分隔的角色 key，覆盖 preset")
+    mr.add_argument("--output-dir", default=None, help="覆盖默认输出目录")
+
     args = ap.parse_args()
     fanqie_root = Path(args.project_root).expanduser().resolve()
     if not fanqie_root.is_dir():
@@ -357,6 +662,8 @@ def main() -> int:
 
     if args.cmd == "cross-parse":
         return run_cross_parse(args, fanqie_root)
+    if args.cmd == "multi-review":
+        return run_multi_review(args, fanqie_root)
 
     workdir = build_workdir(fanqie_root)
     print(f"[fanqie_audit] workdir → {workdir}", file=sys.stderr)

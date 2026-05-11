@@ -2,7 +2,7 @@
 
 Use the `fanqie-plus` skill.
 
-Continue the next chapter:
+Continue the next chapter. Draft one chapter only; do not batch and do not auto-continue:
 
 1. Inspect project state and determine chapter number.
 2. Read minimal context.
@@ -11,4 +11,4 @@ Continue the next chapter:
 5. Draft正文 into `04_chapters/drafts/`.
 6. Run mechanical and semantic gates, including the default 2000-4000 CJK character range unless project config overrides it.
 7. Move accepted正文 to `04_chapters/final/`.
-8. Run one Memory Commit only after the gate passes.
+8. Run one Memory Commit only after the gate passes, then stop and wait for the next explicit user request.

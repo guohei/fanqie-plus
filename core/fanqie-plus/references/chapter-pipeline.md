@@ -1,10 +1,12 @@
 # Chapter Pipeline
 
-Use this reference for single-chapter or batch continuation.
+Use this reference for single-chapter continuation only.
 
 ## Default Chapter Transaction
 
 Run each chapter as a lean file-backed transaction. Do not start the next chapter until the current chapter has passed required gates, landed in `04_chapters/final/`, and updated memory.
+
+At most one chapter may be drafted per user request. Do not batch draft, auto-continue, or run unattended writing loops. If the user asks for multiple chapters, write only the immediate next chapter, finish its transaction, and stop.
 
 Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit zero-padded chapter number, such as `第001章` or `第024章`. This keeps file browsers and plain lexicographic lists in chapter order. Existing unpadded projects may remain as-is; `fanqie_doctor.py` accepts either style.
 
@@ -17,7 +19,7 @@ Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit z
 7. Run the internal Style QA pass after gate_check and before final: protagonist fit, dialogue distinction, escalation, concrete hook, and AI residue. Repair local drift before continuing.
 8. Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed.
 9. Run one Memory Commit after final is accepted.
-10. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available before starting the next chapter.
+10. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available as the final transaction check.
 11. In ephemeral or cloud workspaces, run `scripts/git_checkpoint.py --project-root . --message "第N章完成：..."` after the transaction completes.
 
 ## Strict Review Mode
@@ -94,17 +96,13 @@ The hook should connect to the chapter's pressure or payoff, not appear as a det
 - Keep paragraphs mobile-friendly.
 - End on a concrete hook, not a vague "danger was coming" summary unless that line is supported by a specific reveal.
 
-## Batch Generation
+## No Batch Or Auto Writing
 
-For multiple chapters:
-
-- Batch generation repeats this transaction for each chapter.
-- Draft in order.
-- Gate, final-save, and update memory after each chapter.
-- Run strict review only when a trigger is present.
-- Do not assume later chapters can fix a failed current chapter.
-- Do not draft later chapters first and gate them afterward.
-- Keep fast chapters separated by slow/medium buffers unless at a planned climax.
+- At most one chapter may be drafted per user request.
+- Do not batch draft, auto-continue, or run unattended writing loops.
+- Do not treat "今天N章", "连续写", or "自动写" as permission to draft multiple chapters.
+- After `fanqie_doctor.py` and any checkpoint commit finish, stop and wait for the user's next explicit request.
+- Planning, review, export, and multi-chapter audit may cover multiple chapters;正文 drafting may not.
 
 ## Output Discipline
 
