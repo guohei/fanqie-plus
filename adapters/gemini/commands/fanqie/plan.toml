@@ -1,8 +1,8 @@
 description = "Plan roadmap, anchors, and chapter queue for a Fanqie long novel"
 prompt = """
-Use the fanqie-plus skill from skills/fanqie-plus.
+Use `skills/fanqie-plus/SKILL.md` as the source of truth. If this adapter conflicts with the skill, follow the skill.
 
-Create or update the long-book roadmap, outline anchors, volume plan, and near-term chapter queue. Preserve runway and mark golden three chapters, 8w, 10w, and 15w checkpoints.
+Plan or update the long-book roadmap from the user's request.
 
 User input:
 {{args}}

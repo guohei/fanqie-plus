@@ -1,14 +1,6 @@
 # Fanqie Next
 
-Use the `fanqie-plus` skill.
+Use `.fanqie-plus/SKILL.md` as the source of truth when present; otherwise use the installed `fanqie-plus` skill.
+If this adapter conflicts with the skill, follow the skill.
 
-Continue the next chapter. Draft one chapter only; do not batch and do not auto-continue:
-
-1. Inspect project state and determine chapter number.
-2. Read minimal context.
-3. Optionally lazy-load at most two relevant genre/hook/style leaf files through `references/genres/INDEX.md`.
-4. Save a Micro Beat outside chapter正文.
-5. Draft正文 into `04_chapters/drafts/`.
-6. Run mechanical and semantic gates, including the default 2000-4000 CJK character range unless project config overrides it.
-7. Move accepted正文 to `04_chapters/final/`.
-8. Run one Memory Commit only after the gate passes, then stop and wait for the next explicit user request.
+Continue the next chapter. Hard limit: one chapter only; do not batch; do not auto-continue.

@@ -1,8 +1,8 @@
 description = "Export final chapters to Fanqie plain text"
 prompt = """
-Use the fanqie-plus skill from skills/fanqie-plus.
+Use `skills/fanqie-plus/SKILL.md` as the source of truth. If this adapter conflicts with the skill, follow the skill.
 
-Export final chapters to Fanqie-ready plain text. Run mechanical gates first, remove Markdown and metadata, preserve chapter order, and verify exported text contains正文 only. Do not use --no-gate for publish-ready export.
+Export Fanqie-ready text from final chapters according to the user's request.
 
 User input:
 {{args}}

@@ -20,6 +20,18 @@ GEMINI_NEW = ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "new.toml"
 GEMINI_NEXT = ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "next.toml"
 WINDSURF_NEW = ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-new.md"
 WINDSURF_NEXT = ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-next.md"
+ADAPTER_ENTRYPOINTS = [
+    ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "export.toml",
+    GEMINI_NEW,
+    GEMINI_NEXT,
+    ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "plan.toml",
+    ROOT / "adapters" / "gemini" / "commands" / "fanqie" / "review.toml",
+    ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-export.md",
+    WINDSURF_NEW,
+    WINDSURF_NEXT,
+    ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-plan.md",
+    ROOT / "adapters" / "windsurf" / ".windsurf" / "workflows" / "fanqie-review.md",
+]
 
 
 def section(text: str, heading: str, next_heading: str) -> str:
@@ -342,11 +354,30 @@ class ProjectAgentsContractTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             self.assertIn("AGENTS.md", text, f"{path} should mention project AGENTS.md")
 
-    def test_next_adapters_use_micro_beat_and_memory_commit(self) -> None:
+    def test_adapters_are_thin_source_of_truth_entrypoints(self) -> None:
+        duplicated_flow_snippets = [
+            "Micro Beat",
+            "Memory Commit",
+            "references/genres/INDEX.md",
+            "chapter_queue.yaml",
+            "2000-4000",
+            "mechanical and semantic gates",
+            "pacing quota violations",
+            "automation level",
+            "target reader, writing style, forbidden zones",
+        ]
+
+        for path in ADAPTER_ENTRYPOINTS:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("source of truth", text, f"{path} should delegate workflow details to the skill")
+            self.assertIn("If this adapter conflicts with the skill, follow the skill", text)
+            self.assertLessEqual(len(text.splitlines()), 10, f"{path} should stay a thin entry point")
+            for snippet in duplicated_flow_snippets:
+                self.assertNotIn(snippet, text, f"{path} should not duplicate core workflow details")
+
+    def test_next_adapters_keep_only_chapter_drafting_hard_limits(self) -> None:
         for path in [GEMINI_NEXT, WINDSURF_NEXT]:
             text = path.read_text(encoding="utf-8")
-            self.assertIn("Micro Beat", text, f"{path} should use the lightweight beat path")
-            self.assertIn("Memory Commit", text, f"{path} should use the post-final memory transaction")
             self.assertIn("one chapter", text.lower(), f"{path} should forbid batch chapter drafting")
             self.assertIn("do not batch", text.lower(), f"{path} should forbid batch chapter drafting")
             self.assertIn("do not auto-continue", text.lower(), f"{path} should forbid automatic continuation")

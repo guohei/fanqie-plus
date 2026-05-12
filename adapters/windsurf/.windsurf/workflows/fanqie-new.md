@@ -1,13 +1,6 @@
 # Fanqie New
 
-Use the `fanqie-plus` skill.
+Use `.fanqie-plus/SKILL.md` as the source of truth when present; otherwise use the installed `fanqie-plus` skill.
+If this adapter conflicts with the skill, follow the skill.
 
-Open a new Fanqie long-novel project:
-
-1. Confirm or infer target reader, writing style, forbidden zones, automation level, and target scale.
-2. When the genre is clear, load one matching genre framework through `references/genres/INDEX.md`.
-3. Initialize the project structure.
-4. Create project-root `AGENTS.md` from `assets/project_AGENTS.md`.
-5. Create `00_config/idea_seed.md`, `target_profile.md`, `style_bible.md`, and `platform_strategy.md`.
-6. Record that future chapter artifacts use three-digit zero-padded file names such as `第001章.md` and `第024章-gate.json`.
-7. Draft title and introduction options if the user targets Fanqie release.
+Open a new Fanqie long-novel project from the user's idea. Include project-root `AGENTS.md` as directed by the skill.

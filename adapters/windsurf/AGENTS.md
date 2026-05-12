@@ -1,6 +1,6 @@
 # Fanqie Plus for Windsurf
 
-Use the `fanqie-plus` skill at `.windsurf/skills/fanqie-plus/` for Fanqie/Tomato Chinese long-form web novel work.
+Use `.windsurf/skills/fanqie-plus/SKILL.md` as the source of truth for Fanqie/Tomato Chinese long-form web novel work. If a workflow conflicts with the skill, follow the skill.
 
 If the skill directory is missing, link it from the core skill, from the repository root:
 

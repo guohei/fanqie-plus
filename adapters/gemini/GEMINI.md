@@ -1,8 +1,8 @@
 # Fanqie Plus
 
-When the user asks to open, plan, write, continue, review, repair, or export a 番茄小说/Chinese long-form web novel, use the `fanqie-plus` skill from `skills/fanqie-plus/`.
+When the user asks to open, plan, write, continue, review, repair, or export a 番茄小说/Chinese long-form web novel, use `skills/fanqie-plus/SKILL.md` as the source of truth. If an adapter command conflicts with the skill, follow the skill.
 
-Keep the project file-backed. Do not put beat sheets, review notes, or metadata inside chapter正文. Run the helper scripts inside the skill (`gate_check.py`, `export_fanqie.py`) when deterministic file operations are needed.
+Gemini commands are thin entry points. Keep workflow details in the skill and project-embedded `.fanqie-plus/`.
 
 If `skills/fanqie-plus/` is missing, link the core skill from the repository root:
 
