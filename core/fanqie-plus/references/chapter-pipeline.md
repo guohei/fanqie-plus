@@ -16,7 +16,7 @@ Use `第NNN章` file names for chapter artifacts, where NNN is the three-digit z
 4. Save `04_chapters/drafts/第NNN章.md`.
 5. Run `scripts/gate_check.py` and save `05_reviews/第NNN章-gate.json`.
 6. Repair blocking mechanical findings before continuing.
-7. Run the internal Style QA pass after gate_check and before final: protagonist fit, dialogue distinction, escalation, concrete hook, and AI residue. Repair local drift before continuing.
+7. Run the internal Style QA pass after gate_check and before final: protagonist fit, dialogue distinction, escalation, concrete hook, and AI residue. If the runtime exposes a real delegation/subagent tool, this pass may use one editor subagent to check logic, continuity, character motivation, and chapter promise. The subagent does not directly edit正文; it returns P0/P1/P2 notes to the writing agent, which repairs the smallest issue before final. Do not run a roundtable or multi-review by default during routine chapter drafting.
 8. Only copy or rewrite into `04_chapters/final/第NNN章.md` after mechanical gates pass and any required strict review has passed.
 9. Run one Memory Commit after final is accepted.
 10. Run `scripts/fanqie_doctor.py --project-root . chapter-check --chapter N` when available as the final transaction check.

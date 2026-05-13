@@ -231,6 +231,8 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertIn("6 or more advisory AI-pattern findings", text)
         self.assertIn("Style QA", text)
         self.assertIn("internal five-question pass", text)
+        self.assertIn("one editor subagent", text)
+        self.assertIn("does not directly edit正文", text)
         self.assertIn("Do not write a separate file", text)
         self.assertIn("protagonist choice still fits", text)
         self.assertIn("dialogue voices remain distinguishable", text)
@@ -348,6 +350,20 @@ class ProjectAgentsContractTests(unittest.TestCase):
         self.assertNotIn("Style QA file", text)
         self.assertNotIn("## Batch Generation", text)
         self.assertNotIn("Batch generation repeats", text)
+
+    def test_chapter_pipeline_allows_single_editor_subagent_without_roundtable_default(self) -> None:
+        text = CHAPTER_PIPELINE.read_text(encoding="utf-8")
+
+        required_snippets = [
+            "one editor subagent",
+            "after gate_check and before final",
+            "logic, continuity, character motivation, and chapter promise",
+            "does not directly edit正文",
+            "Do not run a roundtable or multi-review by default during routine chapter drafting",
+        ]
+
+        for snippet in required_snippets:
+            self.assertIn(snippet, text)
 
     def test_new_project_adapters_also_create_agents_file(self) -> None:
         for path in [GEMINI_NEW, WINDSURF_NEW]:

@@ -44,7 +44,7 @@ Use `scripts/gate_check.py` for:
 
 ## Style QA
 
-Use Style QA as an internal five-question pass after mechanical gates and before final. Do not write a separate file unless strict review mode is triggered.
+Use Style QA as an internal five-question pass after mechanical gates and before final. If the runtime exposes a real delegation/subagent tool, the writing agent may delegate this pass to one editor subagent for logic/content review. The subagent does not directly edit正文 and must return only P0/P1/P2 notes. Do not write a separate file unless strict review mode is triggered.
 
 1. Confirm the protagonist choice still fits established desire, tactics, and limits.
 2. Confirm dialogue voices remain distinguishable if speaker names are removed.
